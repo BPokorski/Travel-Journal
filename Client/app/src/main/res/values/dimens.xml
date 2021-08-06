@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="logo_name_dimen">60sp</dimen>
+    <dimen name="edit_text_dimen">40sp</dimen>
+    <dimen name="quote_text_dimen">50sp</dimen>
+    <dimen name="description_text_dimen">30sp</dimen>
+</resources>

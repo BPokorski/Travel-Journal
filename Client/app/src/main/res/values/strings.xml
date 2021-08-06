@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">Travel Journal</string>
+    <string name="login_text">login</string>
+    <string name="password_text">password</string>
+    <string name="login_button">login</string>
+    <string name="register_button">register</string>
+    <string name="sign_in_login_hint">login</string>
+    <string name="sign_in_password_hint">password</string>
+    <string name="register_login_hint">login</string>
+    <string name="register_email_hint">email</string>
+    <string name="register_password_hint">password</string>
+    <string name="quote">"The journey of a thousand miles begins with a single step."</string>
+    <string name="quote_author">~Lao Tzu</string>
+    <string name="login_success">Logged in successfully</string>
+    <string name="not_found_error">User not found</string>
+    <string name="loading">loading...</string>
+    <string name="saving">saving...</string>
+    <string name="login_loading">loading data from server...</string>
+    <string name="server_name">http://192.168.43.153:8080/</string>
+    <string name="server_broken_error">Server broke down. Try again.</string>
+    <string name="invalid_credentials_error">Invalid username or password</string>
+    <string name="google_maps_api_key">API KEY</string>
+    <string name="land_photo_button">countries</string>
+    <string name="water_photo_button">ocean photos</string>
+    <string name="no_gps_detected"> Your gps seems to be disabled. Do You want to enable it?</string>
+    <string name="yes_option">Yes</string>
+    <string name="no_option">No</string>
+    <string name="date">date</string>
+    <string name="location_info">place info</string>
+    <string name="location_progress">Waiting for GPS signal. Please wait</string>
+    <string name="description">description</string>
+    <string name="photo">photo</string>
+    <string name="update">update</string>
+    <string name="update_description_hint">Add Your thoughts here</string>
+</resources>

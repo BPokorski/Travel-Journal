@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ImageView
+        android:id="@+id/left_side"
+        android:layout_width="360dp"
+        android:layout_height="730dp"
+        android:background="@drawable/left_page"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:gravity="center" />
+
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="352dp"
+        android:layout_height="700dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="4dp"
+        android:alpha="0.60"
+        android:background="@drawable/frame"
+        android:backgroundTint="@color/frame"
+        android:gravity="center"
+        />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_countries_photo_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="5dp"
+        android:layout_above="@+id/fab_oceans_photo_button"
+
+        app:backgroundTint="@color/dark_brown"
+        android:clickable="false"
+        android:visibility="invisible"
+        app:icon="@drawable/landscape"
+        app:iconTint="@color/cover_text"
+        android:text="@string/land_photo_button"
+        android:textColor="@color/cover_text"
+        />
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_oceans_photo_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="40dp"
+        android:layout_marginEnd="10dp"
+        app:backgroundTint="@color/dark_brown"
+        app:icon="@drawable/waves"
+        app:iconTint="@color/cover_text"
+        android:clickable="false"
+        android:visibility="invisible"
+        android:text="@string/water_photo_button"
+        android:textColor="@color/cover_text"
+        />
+
+    <ImageView
+        android:id="@+id/loading_bar"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="200dp"
+        android:layout_centerVertical="true"
+        android:visibility="invisible"
+        />
+    <TextView
+        android:id="@+id/loading_text"
+        android:layout_width="200dp"
+        android:layout_height="20dp"
+        android:layout_alignBottom="@+id/loading_bar"
+        android:visibility="invisible"
+        android:layout_marginStart="200dp"
+        android:layout_centerVertical="true"
+        android:fontFamily="@font/plume"
+        android:text="@string/loading"
+        android:textColor="@color/black"
+        />
+    <include
+        layout="@layout/button__layout"
+        android:id="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toStartOf="@+id/left_side"
+        />
+
+</RelativeLayout>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/right_side"
+        android:layout_width="360dp"
+        android:layout_height="730dp"
+        android:background="@drawable/right_page"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/quote"
+        android:layout_width="320dp"
+        android:layout_height="699dp"
+        android:text="@string/quote"
+        android:textSize="@dimen/edit_text_dimen"
+        android:textColor="@color/brown"
+        android:gravity="center"
+        android:fontFamily="@font/plume"/>
+
+    <TextView
+        android:layout_width="320dp"
+        android:layout_height="103dp"
+        android:layout_alignBottom="@+id/quote"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="78dp"
+        android:gravity="right"
+        android:fontFamily="@font/plume"
+        android:text="@string/quote_author"
+        android:textColor="@color/quote_author"
+        android:textSize="@dimen/edit_text_dimen" />
+
+    <include layout="@layout/button__layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toEndOf="@+id/right_side"/>
+
+
+
+
+</RelativeLayout>

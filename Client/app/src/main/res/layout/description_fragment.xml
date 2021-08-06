@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/right_side"
+        android:layout_width="360dp"
+        android:layout_height="730dp"
+        android:background="@drawable/right_page"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="330dp"
+        android:layout_height="500dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="50dp"
+        android:textColor="@color/dark_brown"
+        android:text="@string/update_description_hint"
+        android:textSize="@dimen/edit_text_dimen"
+        android:fontFamily="@font/plume"
+        android:clickable="true"
+        />
+    <EditText
+        android:id="@+id/edit_description"
+        android:layout_width="330dp"
+        android:layout_height="500dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/rounded_edit_text"
+        android:backgroundTint="@android:color/transparent"
+        android:hint="@string/update_description_hint"
+        android:textColor="@color/dark_brown"
+        android:textSize="@dimen/edit_text_dimen"
+        android:fontFamily="@font/plume"
+        android:visibility="gone"
+        />
+    <Button
+        android:id="@+id/photo_page_button"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="40dp"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/rounded_edit_text"
+        android:backgroundTint="@color/dark_brown"
+        android:text="@string/photo"
+        android:textColor="@color/cover_text"
+        android:fontFamily="@font/plume"
+        />
+    <Button
+        android:id="@+id/update_description_button"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"
+        android:background="@drawable/rounded_edit_text"
+        android:backgroundTint="@color/dark_brown"
+        android:text="@string/update"
+        android:textColor="@color/cover_text"
+        android:fontFamily="@font/plume"
+        android:visibility="invisible"
+        android:clickable="false"
+        />
+    <include layout="@layout/button__layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toEndOf="@+id/right_side"/>
+</RelativeLayout>

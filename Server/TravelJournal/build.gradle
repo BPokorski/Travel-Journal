@@ -1,0 +1,56 @@
+plugins {
+	id 'org.springframework.boot' version '2.3.2.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'java'
+}
+
+group = 'TravelJournal'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	maven {
+		url "https://repo.osgeo.org/repository/release/"
+		}
+
+	mavenCentral()
+	
+
+
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+	implementation('javax.validation:validation-api:2.0.0.Final')
+	implementation('io.jsonwebtoken:jjwt:0.9.1')
+	implementation('com.fasterxml.jackson.core:jackson-annotations')
+	implementation('javax.servlet:javax.servlet-api:4.0.1')
+	implementation('jakarta.xml.bind:jakarta.xml.bind-api')
+	implementation('com.drewnoakes:metadata-extractor:2.14.0')
+	implementation('org.geotools:gt-main:23.2')
+	implementation('org.geotools:gt-shapefile:23.2')
+	implementation('org.geotools:gt-geojson:23.2')
+	implementation('com.google.api-client:google-api-client:1.23.0')
+	implementation('com.google.oauth-client:google-oauth-client-jetty:1.23.0')
+	implementation('com.google.apis:google-api-services-drive:v3-rev110-1.23.0')
+	implementation('com.byteowls:jopencage:1.4.0')
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testImplementation 'org.springframework.security:spring-security-test'
+}
+
+test {
+	useJUnitPlatform()
+}
