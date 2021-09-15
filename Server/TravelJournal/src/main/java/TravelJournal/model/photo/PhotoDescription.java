@@ -8,6 +8,12 @@ import lombok.experimental.Accessors;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.hateoas.server.core.Relation;
 
+/**
+ * Model of photo description.
+ * Contains data about owner, photo id, own description,
+ * angle of rotation(to achieve effect in display of hand-glued photo),
+ * date of taking a photo and if contains location data e.g. country and coordinates.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

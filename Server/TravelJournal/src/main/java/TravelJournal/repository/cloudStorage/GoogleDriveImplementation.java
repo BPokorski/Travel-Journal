@@ -19,22 +19,29 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Google Drive API class. Contains method to manage cloud storage files.
+ */
 @Service
-public class CloudStorageImplementation implements CloudStorageRepository {
+public class GoogleDriveImplementation implements GoogleDriveRepository {
     private static final String APPLICATION_NAME = "TravelJournal";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
 
+    private final Drive service;
     /**
      * Global instance of the scopes required by this quickstart.
      * If modifying these scopes, delete your previously saved tokens/ folder.
      */
     private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE);
     private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+
+    public GoogleDriveImplementation() throws GeneralSecurityException, IOException {
+        this.service = getDriveService();
+    }
 
     /**
      * Creates an authorized Credential object.
@@ -44,7 +51,7 @@ public class CloudStorageImplementation implements CloudStorageRepository {
      */
     private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
         // Load client secrets.
-        InputStream in = CloudStorageImplementation.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        InputStream in = GoogleDriveImplementation.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
         if (in == null) {
             throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
         }
@@ -60,32 +67,34 @@ public class CloudStorageImplementation implements CloudStorageRepository {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-
-    public File createFolder(String name, String rootFolderId) throws IOException, GeneralSecurityException {
-        Drive service = getDriveService();
+    /**
+     * Create new folder in given folder or root hierarchy.
+     * @param name - Name of folder.
+     * @param rootFolderId - Id of root folder to be created in, "root" if to create folder in top of hierarchy.
+     * @throws IOException If the credentials.json file cannot be found.
+     */
+    public void createFolder(String name, String rootFolderId) throws IOException {
         File fileMetadata = new File();
+
         fileMetadata.setName(name);
         fileMetadata.setMimeType("application/vnd.google-apps.folder");
         fileMetadata.setParents(Collections.singletonList(rootFolderId));
 
-        File folders = searchFolder(name, rootFolderId);
-
-        // if folder already exists get it
-        if (folders == null) {
-            File newFolder = service.files().create(fileMetadata)
-                    .setFields("id")
-                    .execute();
-            System.out.println("Folder ID: " + newFolder.getId());
-            return newFolder;
-        } else {
-            System.out.println("Folder ID: " + folders.getId());
-            return folders;
-        }
-
+        service.files().create(fileMetadata)
+                .setFields("id")
+                .execute();
     }
 
-    public File addPhoto(String rootFolderId, java.io.File filePath, String photoName) throws IOException, GeneralSecurityException {
-        Drive service = getDriveService();
+    /**
+     * Add photo to given folder.
+     * @param rootFolderId - Id of folder in which new photo will be placed. "Root" if there isn't any folder.
+     * @param filePath - File containing image.
+     * @param photoName - Name of file created in Google Drive.
+     * @return newly created photo.
+     * @throws IOException If the credentials.json file cannot be found.
+     */
+    public File addPhoto(String rootFolderId, java.io.File filePath, String photoName) throws IOException {
+
         File fileMetadata = new File();
         fileMetadata.setName(photoName);
         fileMetadata.setParents(Collections.singletonList(rootFolderId));
@@ -95,17 +104,22 @@ public class CloudStorageImplementation implements CloudStorageRepository {
         File file = service.files().create(fileMetadata, mediaContent)
                 .setFields("id, parents")
                 .execute();
-        System.out.println("File ID: " + file.getId());
         return file;
     }
 
-    public File searchFolder(String name, String parentId) throws GeneralSecurityException, IOException {
-        Drive service = getDriveService();
+    /**
+     * Search for specific folder.
+     * @param name - Name of folder to be found.
+     * @param parentId - Id of parent folder or "root" if there isn't any.
+     * @return Found folder or null if there is no such a folder.
+     * @throws IOException If the credentials.json file cannot be found.
+     */
+    public File searchFolder(String name, String parentId) throws IOException {
         String pageToken = null;
         FileList result = service.files().list()
                 .setQ(String.format("mimeType = 'application/vnd.google-apps.folder' and name= '%s' and trashed=false and '%s' in parents", name, parentId))
                 .setSpaces("drive")
-                .setFields("nextPageToken, files(id, name)")
+                .setFields("nextPageToken, files(id, name, parents)")
                 .setPageToken(pageToken)
                 .execute();
 
@@ -115,49 +129,39 @@ public class CloudStorageImplementation implements CloudStorageRepository {
             return result.getFiles().get(0);
         }
     }
-    public List<File> getAllFilesInFolder(String parentId, String fileType) throws IOException, GeneralSecurityException {
-        Drive service = getDriveService();
-        String pageToken = null;
-        String mimeType = "";
-        List<File> photos= new ArrayList<>();
-        if(fileType.equals("folder")) {
-            mimeType = "application/vnd.google-apps.folder";
-        } else {
-            mimeType = "image/jpeg";
-        }
-        FileList result = service.files().list()
-                .setQ(String.format("mimeType = '%s' and trashed=false and '%s' in parents",mimeType, parentId))
-                .setSpaces("drive")
-                .setFields("nextPageToken, files(id, name)")
-                .setPageToken(pageToken)
-                .execute();
-        if (result.getFiles().size() == 0) {
-            return photos;
-        } else {
-            return result.getFiles();
-        }
-    }
 
-    public byte[] downloadPhoto(String photoId) throws IOException, GeneralSecurityException {
-        java.io.File photoDownloaded;
+    /**
+     * Get photo with given id.
+     * @param photoId - Google Drive Id of photo.
+     * @return Byte array representation of image.
+     * @throws IOException If the credentials.json file cannot be found.
+     */
+    public byte[] downloadPhoto(String photoId) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Drive service = getDriveService();
         service.files().get(photoId).executeMediaAndDownloadTo(outputStream);
         return outputStream.toByteArray();
     }
 
-    public void deletePhoto(String photoId) throws GeneralSecurityException, IOException {
-        Drive service = getDriveService();
-        service.files().delete(photoId).execute();
-
+    /**
+     * Delete photo with given id.
+     * @param fileId - Google Drive Id of photo.
+     * @throws IOException If the credentials.json file cannot be found.
+     */
+    public void deleteFile(String fileId) throws IOException {
+        service.files().delete(fileId).execute();
     }
 
+    /**
+     *
+     * @return Instance of Google Drive Service
+     * @throws GeneralSecurityException When authentication fails.
+     * @throws IOException If the credentials.json file cannot be found.
+     */
     private Drive getDriveService() throws GeneralSecurityException, IOException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+        return new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                 .setApplicationName(APPLICATION_NAME)
                 .build();
-        return service;
     }
 
 }

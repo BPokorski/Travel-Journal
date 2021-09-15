@@ -8,6 +8,11 @@ import lombok.experimental.Accessors;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
+/**
+ * Model similar to PhotoDescription, however as it is response, there is no need to be owner returned.
+ * Contains id of photo, own description, angle of which rotate displayed photo to get "hand-glued" effect,
+ * date of taking a photo and if possible country and coordinates of place where picture was taken.
+ */
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,7 +30,7 @@ public class PhotoDescriptionResponse extends RepresentationModel<PhotoDescripti
     private int rotateAngle;
 
 
-    public PhotoDescriptionResponse(String id, String photoId,String description, String date, String country, int rotateAngle) {
+    public PhotoDescriptionResponse(String id, String photoId, String description, String date, String country, int rotateAngle) {
         this.id = id;
         this.photoId = photoId;
         this.description = description;

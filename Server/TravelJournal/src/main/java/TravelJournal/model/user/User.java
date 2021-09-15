@@ -9,6 +9,9 @@ import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * User model. Contains id, login, password, e-mail and granted authorities.
+ */
 @Document(collection="User")
 @Data
 public class User {

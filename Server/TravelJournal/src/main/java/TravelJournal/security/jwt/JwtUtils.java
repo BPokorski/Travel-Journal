@@ -19,6 +19,10 @@ import java.util.Date;
 //import io.jsonwebtoken.SignatureAlgorithm;
 //import io.jsonwebtoken.UnsupportedJwtException;
 
+/**
+ * JSON Web Token Utils class.
+ * Methods allows to generate token, get username from token and validate token.
+ */
 @Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
@@ -29,6 +33,11 @@ public class JwtUtils {
     @Value("${traveljournal.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
+    /**
+     * Generate JSON Web Token.
+     * @param authentication -  Authentication Instance from Spring Security
+     * @return String token
+     */
     public String generateJwtToken(Authentication authentication) {
 
         UserDetailsImplementation userPrincipal = (UserDetailsImplementation) authentication.getPrincipal();
@@ -41,11 +50,21 @@ public class JwtUtils {
                 .compact();
     }
 
+    /**
+     * Get username from Token.
+     * @param token - JSON Web Token.
+     * @return username of token.
+     */
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
 
-    public boolean validateJwtToken(String authToken) throws SignatureException {
+    /**
+     * Validate Token
+     * @param authToken - Token to be validated.
+     * @return - whether token is valid.
+     */
+    public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
             return true;

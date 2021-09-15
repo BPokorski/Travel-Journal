@@ -5,6 +5,9 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 
+/**
+ * Parameters necessary for user to log in.
+ */
 @Getter
 @Setter
 public class LoginRequest {

@@ -3,6 +3,7 @@ package TravelJournal.utils.photo;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.lang.GeoLocation;
+import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
@@ -10,53 +11,60 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Collection;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
+/**
+ * Class to get exif metadata from photo/picture
+ */
 @Service
 public class PhotoEXIF {
+    private Metadata metadata = new Metadata();
+
+    /**
+     * Method to get date of taking a picture
+     * @param photo - picture to get date from
+     * @return date in yyyy-mm-dd format
+     */
     public String getPhotoDate(File photo) {
 
-        String customDate = "2000 JANUARY 1";
-        Metadata metadata = new Metadata();
         try {
             metadata = ImageMetadataReader.readMetadata(photo);
 
         } catch (IOException | ImageProcessingException e) {
             e.printStackTrace();
         }
-        Collection<ExifSubIFDDirectory> exifDirectories = metadata.getDirectoriesOfType(ExifSubIFDDirectory.class);
-        for (ExifSubIFDDirectory exifDirectory : exifDirectories) {
-            Date date = exifDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-            LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            customDate =localDate.getYear() + " " + localDate.getMonth() + " " + localDate.getDayOfMonth();
-            break;
+        Directory directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+        int dateTag = ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL;
+
+        if (directory != null && directory.containsTag(dateTag)) {
+            Date date = directory.getDate(dateTag, TimeZone.getDefault());
+            return new SimpleDateFormat("yyyy-MM-dd").format(date);
+        } else {
+            return "1900-01-01";
         }
-        return customDate;
     }
+
+    /**
+     * Method to get location where picture was taken
+     * @param photo - picture to get location from
+     * @return GeoLocation object which stores coordinates
+     */
     public GeoLocation getPhotoLocation(File photo) {
         GeoLocation geoLocation = null;
-
-        Metadata metadata = new Metadata();
         try {
             metadata = ImageMetadataReader.readMetadata(photo);
 
         } catch (IOException | ImageProcessingException e) {
             e.printStackTrace();
         }
-        Collection<GpsDirectory> gpsDirectories = metadata.getDirectoriesOfType(GpsDirectory.class);
 
-        for (GpsDirectory gpsDirectory : gpsDirectories) {
-            // Try to read out the location, making sure it's non-zero
+        GpsDirectory gpsDirectory = metadata.getFirstDirectoryOfType(GpsDirectory.class);
+
+        if (gpsDirectory != null) {
             geoLocation = gpsDirectory.getGeoLocation();
-            if (geoLocation != null && !geoLocation.isZero()) {
-
-                break;
-            }
         }
-
         return geoLocation;
     }
 }

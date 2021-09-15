@@ -2,15 +2,20 @@ package TravelJournal.service;
 
 import TravelJournal.model.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Getter
+@EqualsAndHashCode
+@AllArgsConstructor
 public class UserDetailsImplementation implements UserDetails {
     private static final long serialVersionUID = 1L;
 
@@ -25,15 +30,6 @@ public class UserDetailsImplementation implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImplementation(String id, String username, String email, String password,
-                           Collection<? extends GrantedAuthority> authorities) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.authorities = authorities;
-    }
-
     public static UserDetailsImplementation build(User user) {
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
@@ -45,29 +41,6 @@ public class UserDetailsImplementation implements UserDetails {
                 user.getEmail(),
                 user.getPassword(),
                 authorities);
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
     }
 
     @Override
@@ -90,13 +63,4 @@ public class UserDetailsImplementation implements UserDetails {
         return true;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        UserDetailsImplementation user = (UserDetailsImplementation) o;
-        return Objects.equals(id, user.id);
-    }
 }

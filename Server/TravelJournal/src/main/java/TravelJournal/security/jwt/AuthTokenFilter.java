@@ -17,6 +17,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * Filtering requests and responses for authenticated users.
+ */
 public class AuthTokenFilter extends OncePerRequestFilter{
     @Autowired
     private JwtUtils jwtUtils;
@@ -25,6 +28,15 @@ public class AuthTokenFilter extends OncePerRequestFilter{
     private UserDetailsServiceImplementation userDetailsService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
+
+    /**
+     * Setting authentication if Json Web Token is correct.
+     * @param request - HTTPServlet Request.
+     * @param response - HTTPServlet Response.
+     * @param filterChain - FilterChain.
+     * @throws ServletException - If an Exception has occurred that interferes with the filterChain's normal operation.
+     * @throws IOException If an I/O related error has occurred during the processing.
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -47,6 +59,11 @@ public class AuthTokenFilter extends OncePerRequestFilter{
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Parsing Json Web Token. Getting Token from HTTP Request
+     * @param request - HTTPServlet Request.
+     * @return Json Web Token.
+     */
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
 

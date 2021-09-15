@@ -1,11 +1,12 @@
 package TravelJournal.controller.MapController;
 
+import TravelJournal.controller.PhotoController.PhotoController;
+import TravelJournal.model.photo.PhotoDescription;
 import TravelJournal.payload.response.CountryResponse;
 import TravelJournal.payload.response.PhotoDescriptionResponse;
 import TravelJournal.repository.photo.PhotoDescriptionRepository;
 import TravelJournal.service.PhotoService;
-import TravelJournal.utils.stringParser.StringUtills;
-import com.google.api.services.drive.model.File;
+import TravelJournal.utils.stringParser.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -27,7 +29,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping("/{login}/map")
 public class MapController {
-    private final StringUtills stringUtills = new StringUtills();
+    private final StringUtils stringUtils = new StringUtils();
     @Autowired
     PhotoDescriptionRepository descriptionRepository;
 
@@ -39,33 +41,33 @@ public class MapController {
     public ResponseEntity<?> getCountries(@PathVariable String login) throws GeneralSecurityException, IOException {
         List<CountryResponse> countries = new ArrayList<>();
 
-        File userFolder = photoService.getFolder(login, "root");
+        Set<String> availableCountries = photoService.getAvailableCountries(login);
 
-                    List<File> availableCountries = photoService.getAllFiles(userFolder.getId(), "folder");
-                    if (!availableCountries.isEmpty()) {
+        if (!availableCountries.isEmpty()) {
 
-                        for (File availableCountry : availableCountries) {
-                            if (!availableCountry.getName().equals("Other")) {
-                                CountryResponse country = new CountryResponse(availableCountry.getName());
-                                countries.add(country);
+            for (String availableCountry : availableCountries) {
+                if (!availableCountry.equals("Other")) {
+                    CountryResponse country = new CountryResponse(availableCountry);
+                    countries.add(country);
 
-                                String countryLowercaseNameDash = stringUtills.connectorChanger(
-                                        stringUtills.toLowerCaseConverter(
-                                                availableCountry.getName()
-                                        ),
-                                        " ",
-                                        "-");
+                    String countryLowercaseNameDash = stringUtils.separatorChanger(
+                            stringUtils.toLowerCaseConverter(
+                                    availableCountry,
+                                    " "
+                            ),
+                            " ",
+                            "-");
 
-                                Link link = linkTo(methodOn(MapController.class)
-                                        .getCountryPhotoDescriptions(login, countryLowercaseNameDash))
-                                        .withRel(availableCountry.getName());
+                    Link link = linkTo(methodOn(MapController.class)
+                            .getCountryPhotoDescriptions(login, countryLowercaseNameDash))
+                            .withRel(availableCountry);
 
-                                country.add(link);
-                            }
-                        }
-                    } else {
-                        return ResponseEntity.ok(HttpStatus.NO_CONTENT);
-                    }
+                    country.add(link);
+                }
+            }
+        } else {
+            return ResponseEntity.ok(HttpStatus.NO_CONTENT);
+        }
         return ResponseEntity.ok(countries);
     }
 
@@ -74,12 +76,42 @@ public class MapController {
     public ResponseEntity<?> getCountryPhotoDescriptions(@PathVariable String login,
                                                          @PathVariable String country) throws GeneralSecurityException, IOException {
 
-        String countryCapitalWhitespace = stringUtills.connectorChanger(
-                stringUtills.toCapitalFirstLetter(country),
+        List<PhotoDescriptionResponse> descriptions = new ArrayList<>();
+        String countryCapitalWhitespace = stringUtils.separatorChanger(
+                stringUtils.toCapitalFirstLetter(country, "-"),
                 "-",
                 " ");
 
-        List<PhotoDescriptionResponse> descriptions = photoService.getPhotosInCountry(login, countryCapitalWhitespace);
+        List<PhotoDescription> photos = photoService.getPhotosInCountry(login, countryCapitalWhitespace);
+        if (!photos.isEmpty()) {
+
+            for(TravelJournal.model.photo.PhotoDescription photoDescription: photos) {
+
+                PhotoDescriptionResponse descriptionResponse = new PhotoDescriptionResponse()
+                        .setId(photoDescription.getId())
+                        .setPhotoId(photoDescription.getPhotoId())
+                        .setDescription(photoDescription.getDescription())
+                        .setDate(photoDescription.getDate())
+                        .setCountry(photoDescription.getCountry())
+                        .setLatitude(photoDescription.getLatitude())
+                        .setLongitude(photoDescription.getLongitude())
+                        .setRotateAngle(photoDescription.getRotateAngle());
+
+                // link to self description
+                Link link = linkTo(methodOn(PhotoController.class)
+                        .getPhotoDescription(login, photoDescription.getPhotoId()))
+                        .withSelfRel();
+
+                // link to photo
+                Link photoLink = linkTo(methodOn(PhotoController.class)
+                        .getPhoto(login,photoDescription.getPhotoId()))
+                        .withRel("photo");
+
+                descriptionResponse.add(link);
+                descriptionResponse.add(photoLink);
+                descriptions.add(descriptionResponse);
+            }
+        }
 
         if(descriptions.isEmpty()) {
             return ResponseEntity.ok(HttpStatus.NO_CONTENT);
@@ -92,9 +124,38 @@ public class MapController {
     @GetMapping("/ocean")
     @PreAuthorize("#login == authentication.principal.username")
     public ResponseEntity<?> getOceanPhotoDescriptions(@PathVariable String login) throws GeneralSecurityException, IOException {
+        List<PhotoDescriptionResponse> descriptions = new ArrayList<>();
+        List<PhotoDescription> photos = photoService.getPhotosInCountry(login, "Ocean");
 
-        List<PhotoDescriptionResponse> descriptions = photoService.getPhotosInCountry(login, "Ocean");
+        if (!photos.isEmpty()) {
 
+            for(PhotoDescription photoDescription: photos) {
+
+                PhotoDescriptionResponse descriptionResponse = new PhotoDescriptionResponse()
+                        .setId(photoDescription.getId())
+                        .setPhotoId(photoDescription.getPhotoId())
+                        .setDescription(photoDescription.getDescription())
+                        .setDate(photoDescription.getDate())
+                        .setCountry(photoDescription.getCountry())
+                        .setLatitude(photoDescription.getLatitude())
+                        .setLongitude(photoDescription.getLongitude())
+                        .setRotateAngle(photoDescription.getRotateAngle());
+
+                // link to self description
+                Link link = linkTo(methodOn(PhotoController.class)
+                        .getPhotoDescription(login, photoDescription.getPhotoId()))
+                        .withSelfRel();
+
+                // link to photo
+                Link photoLink = linkTo(methodOn(PhotoController.class)
+                        .getPhoto(login,photoDescription.getPhotoId()))
+                        .withRel("photo");
+
+                descriptionResponse.add(link);
+                descriptionResponse.add(photoLink);
+                descriptions.add(descriptionResponse);
+            }
+        }
         if(descriptions.isEmpty()) {
             return ResponseEntity.ok(HttpStatus.NO_CONTENT);
         } else {
