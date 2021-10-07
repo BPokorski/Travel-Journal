@@ -1,33 +1,19 @@
 package com.example.traveljournal.utils
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
-import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.IBinder
-import android.preference.PreferenceManager
-import android.provider.Settings
-import android.widget.Toast
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.MutableLiveData
-import com.example.traveljournal.R
-import com.example.traveljournal.presentation.view.MainActivity
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.PendingResult
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 
 
@@ -142,7 +128,6 @@ class GpsUtils() : Service(), LocationListener {
 
     }
     private fun enableGPSDialog(exception: ApiException) {
-
         when (exception.statusCode) {
 
             LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
@@ -175,7 +160,6 @@ class GpsUtils() : Service(), LocationListener {
                     /**
                      * User agreed to make required location settings changes.
                      * */
-                    System.out.println("Zezwolono na lokalizacje")
                     getLocation()
                 }
                 Activity.RESULT_CANCELED -> {
@@ -187,7 +171,6 @@ class GpsUtils() : Service(), LocationListener {
         }
     }
 
-
     override fun onLocationChanged(location: Location?) {}
     override fun onProviderDisabled(provider: String) {}
     override fun onProviderEnabled(provider: String) {}
@@ -195,7 +178,6 @@ class GpsUtils() : Service(), LocationListener {
     override fun onBind(arg0: Intent?): IBinder? {
         return null
     }
-
 
     companion object {
         // The minimum distance to change Updates in meters

@@ -16,7 +16,7 @@
     <string name="loading">loading...</string>
     <string name="saving">saving...</string>
     <string name="login_loading">loading data from server...</string>
-    <string name="server_name">http://192.168.43.153:8080/</string>
+    <string name="server_name">SERVER NAME/</string>
     <string name="server_broken_error">Server broke down. Try again.</string>
     <string name="invalid_credentials_error">Invalid username or password</string>
     <string name="google_maps_api_key">API KEY</string>

@@ -1,9 +1,7 @@
 package TravelJournal.service;
 
-import TravelJournal.model.user.User;
 import TravelJournal.payload.request.LoginRequest;
 import TravelJournal.payload.request.SignupRequest;
-import TravelJournal.payload.response.PhotoDescriptionResponse;
 import TravelJournal.repository.cloudStorage.GoogleDriveRepository;
 import TravelJournal.repository.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -20,7 +18,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

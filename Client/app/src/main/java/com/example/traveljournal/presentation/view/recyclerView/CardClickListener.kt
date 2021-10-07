@@ -1,7 +1,7 @@
 package com.example.traveljournal.presentation.view.recyclerView
 
-import com.example.traveljournal.data.model.response.PhotoDescriptionResponse
+import com.example.traveljournal.data.model.response.PhotoDataResponse
 
 interface CardClickListener {
-    fun onCardClickListener(photoDescription: PhotoDescriptionResponse?, position: Int)
+    fun onCardClickListener(photoData: PhotoDataResponse?, position: Int)
 }

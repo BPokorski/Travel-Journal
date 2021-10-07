@@ -3,7 +3,7 @@ package com.example.traveljournal.data.model.response
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class PagedDescriptionResponse {
+class PagedPhotoDataResponse {
     @SerializedName("totalItems")
     @Expose
     var totalItems:Long? = null
@@ -13,7 +13,7 @@ class PagedDescriptionResponse {
     @SerializedName("currentPage")
     @Expose
     var currentPage:Int? = null
-    @SerializedName("descriptions")
+    @SerializedName("photoData")
     @Expose
-    var descriptions:List<PhotoDescriptionResponse>? = null
+    var data:List<PhotoDataResponse>? = null
 }

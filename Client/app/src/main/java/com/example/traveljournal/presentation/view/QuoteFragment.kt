@@ -10,8 +10,6 @@ import com.example.traveljournal.R
 import com.example.traveljournal.data.SessionManager
 
 class QuoteFragment: Fragment() {
-//    private lateinit var settingsButton: Button;
-//    private lateinit var mapButton: Button;
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -26,6 +24,5 @@ class QuoteFragment: Fragment() {
             savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
-
     }
 }

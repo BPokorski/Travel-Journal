@@ -2,13 +2,11 @@ package com.example.traveljournal.presentation.view
 
 import com.example.traveljournal.utils.GpsUtils
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.AnimationDrawable
-import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.os.Environment
@@ -29,10 +27,7 @@ import com.example.traveljournal.data.repository.Resource
 import com.example.traveljournal.presentation.viewModel.CameraViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import io.fotoapparat.Fotoapparat
-import io.fotoapparat.parameter.ScaleType
-import io.fotoapparat.result.PendingResult
 import io.fotoapparat.result.PhotoResult
-import io.fotoapparat.result.transformer.ResolutionTransformer
 import io.fotoapparat.selector.back
 import io.fotoapparat.view.CameraView
 import java.io.File
@@ -57,11 +52,11 @@ class CameraFragment:Fragment() {
     private lateinit var animationDrawable: AnimationDrawable
     private lateinit var progressBar:ImageView
     val permissions = arrayOf(
-        android.Manifest.permission.CAMERA,
-        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        android.Manifest.permission.READ_EXTERNAL_STORAGE,
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION
+        Manifest.permission.CAMERA,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
     )
 
     override fun onCreateView(
@@ -74,8 +69,6 @@ class CameraFragment:Fragment() {
         super.onAttach(context)
         fragmentContext = context;
         sessionManager = SessionManager(context);
-//        gpsUtils = GpsUtils(fragmentContext)
-
     }
 
     override fun onViewCreated(
@@ -104,7 +97,6 @@ class CameraFragment:Fragment() {
                 Toast.makeText(fragmentContext, getString(R.string.location_progress), Toast.LENGTH_SHORT).show()
             } else { takePhoto()
             }
-
         }
         fabBack.setOnClickListener {
             goBack()
@@ -115,11 +107,9 @@ class CameraFragment:Fragment() {
         fabSave.setOnClickListener {
             save()
         }
-
     }
 
     private fun createFotoapparat() {
-
         fotoapparat = Fotoapparat(
             context = fragmentContext,
             view = cameraView,
@@ -129,12 +119,6 @@ class CameraFragment:Fragment() {
 
     private fun takePhoto() {
         photoResult = fotoapparat?.takePicture()
-//        cameraViewModel.checkLocation()
-
-
-        System.out.println(location)
-
-
         photoResult?.toBitmap()?.whenAvailable { bitmapPhoto ->
 
             result.visibility = View.VISIBLE
@@ -151,20 +135,17 @@ class CameraFragment:Fragment() {
             fabDelete.visibility = View.VISIBLE
             fabSave.visibility = View.VISIBLE
             fabDelete.isClickable = true
-
         }
     }
 
     override fun onStart() {
         super.onStart()
-
         fotoapparat?.start()
         if (hasNoPermissions()) {
             requestPermission()
         } else {
             fotoapparat?.start()
         }
-
     }
 
     override fun onStop() {
@@ -183,8 +164,8 @@ class CameraFragment:Fragment() {
                         Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(fragmentContext,
                         Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-
     }
+
     fun requestPermission(){
         ActivityCompat.requestPermissions(requireActivity(), permissions,0)
     }
@@ -211,7 +192,6 @@ class CameraFragment:Fragment() {
     }
 
     private fun save() {
-
         var login = sessionManager.fetchLogin()
         var path = fragmentContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.absolutePath
         var file = File(path, "tempImg.jpg")
@@ -220,21 +200,17 @@ class CameraFragment:Fragment() {
             cameraViewModel.addPhoto(login, file, location)?.observe(viewLifecycleOwner, Observer {
             when(it?.status) {
                 Resource.Status.SUCCESS -> {
-
                     Toast.makeText(fragmentContext, "Photo added successfully", Toast.LENGTH_SHORT).show()
-                    var photoDescription = it.data
-                    cameraViewModel.saveAddressInfo(photoDescription)
+                    var photoData = it.data
+                    cameraViewModel.saveAddressInfo(photoData)
 
                     gpsUtils.stopUsingGPS()
 
                     Navigator.navigateToPhoto(activity)
-
                 }
                 Resource.Status.LOADING -> {
-                    System.out.println("Saving")
                 }
                 Resource.Status.ERROR -> {
-
                     Toast.makeText(fragmentContext, it.message, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -245,5 +221,4 @@ class CameraFragment:Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         gpsUtils.onActivityResult(requestCode, resultCode, data)
     }
-
 }

@@ -6,30 +6,31 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PageKeyedDataSource
 import androidx.paging.PagedList
-import com.example.traveljournal.data.model.response.PhotoDescriptionResponse
-import com.example.traveljournal.data.repository.pagination.PhotoDescriptionSourceFactory
-import com.example.traveljournal.utils.DescriptionUtils
+import com.example.traveljournal.data.model.response.PhotoDataResponse
+import com.example.traveljournal.data.repository.pagination.PhotoDataSourceFactory
+import com.example.traveljournal.utils.PhotoDataUtils
 
 class GalleryViewModel:ViewModel() {
 
-    lateinit var photoDescriptionPagedList: LiveData<PagedList<PhotoDescriptionResponse>>
-    lateinit var liveDataSource:LiveData<PageKeyedDataSource<Int, PhotoDescriptionResponse>>
-    private lateinit var descriptionUtils: DescriptionUtils
-    fun init(context: Context) {
-        val photoDescriptionSourceFactory = PhotoDescriptionSourceFactory(context)
+    lateinit var photoDataPagedList: LiveData<PagedList<PhotoDataResponse>>
+    lateinit var liveDataSource:LiveData<PageKeyedDataSource<Int, PhotoDataResponse>>
+    private lateinit var photoDataUtils: PhotoDataUtils
 
-        descriptionUtils = DescriptionUtils(context)
-        liveDataSource = photoDescriptionSourceFactory.getPhotoDescriptionLiveData()
+    fun init(context: Context) {
+        val photoDataSourceFactory = PhotoDataSourceFactory(context)
+
+        photoDataUtils = PhotoDataUtils(context)
+        liveDataSource = photoDataSourceFactory.getPhotoDataLiveData()
 
         val config = PagedList.Config.Builder()
                 .setPageSize(3)
                 .setEnablePlaceholders(false)
                 .build()
 
-        photoDescriptionPagedList = LivePagedListBuilder<Int, PhotoDescriptionResponse>(photoDescriptionSourceFactory, config).build()
+        photoDataPagedList = LivePagedListBuilder<Int, PhotoDataResponse>(photoDataSourceFactory, config).build()
     }
 
-    fun saveAddressInfo(photoDescription: PhotoDescriptionResponse?) {
-        descriptionUtils.saveAddressInfo(photoDescription)
+    fun saveAddressInfo(photoData: PhotoDataResponse?) {
+        photoDataUtils.saveAddressInfo(photoData)
     }
 }

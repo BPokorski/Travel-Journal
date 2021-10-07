@@ -3,12 +3,10 @@ package com.example.traveljournal.data.model.response
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class PhotoDescriptionResponse {
+class PhotoDataResponse {
     @SerializedName("id")
     @Expose
     var id:String? = null
-
-
     @SerializedName("photoId")
     @Expose
     var photoId:String? = null

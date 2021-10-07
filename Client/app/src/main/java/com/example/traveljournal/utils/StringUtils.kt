@@ -1,6 +1,6 @@
 package com.example.traveljournal.utils
 
-class StringUtills {
+class StringUtils {
 
     fun connectorChanger(word: String, connector: String?, newConnector: String?): String {
         var newWord:String? = null

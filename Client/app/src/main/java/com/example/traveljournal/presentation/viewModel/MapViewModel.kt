@@ -5,10 +5,10 @@ import android.graphics.Color
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.traveljournal.data.model.response.CountryResponse
-import com.example.traveljournal.data.model.response.PhotoDescriptionResponse
+import com.example.traveljournal.data.model.response.PhotoDataResponse
 import com.example.traveljournal.data.repository.Repository
 import com.example.traveljournal.data.repository.Resource
-import com.example.traveljournal.utils.DescriptionUtils
+import com.example.traveljournal.utils.PhotoDataUtils
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.LatLng
@@ -20,20 +20,19 @@ import com.google.maps.android.data.geojson.GeoJsonLayer
 import com.google.maps.android.data.geojson.GeoJsonPolygonStyle
 
 class MapViewModel:ViewModel() {
-    private var countryPhotoDescriptionData: MutableLiveData<Resource<List<PhotoDescriptionResponse>?>>? = null
-    private var oceanPhotoDescriptionData: MutableLiveData<Resource<List<PhotoDescriptionResponse>?>>? = null
+    private var countryPhotoDataData: MutableLiveData<Resource<List<PhotoDataResponse>?>>? = null
+    private var oceanPhotoDataData: MutableLiveData<Resource<List<PhotoDataResponse>?>>? = null
     private var countries: MutableLiveData<Resource<List<CountryResponse?>?>>? = null
     private lateinit var repository:Repository
-    private lateinit var descriptionUtils: DescriptionUtils
-    var markerPhotoMap = hashMapOf<Marker, PhotoDescriptionResponse>()
+    private lateinit var photoDataUtils: PhotoDataUtils
+    var markerPhotoMap = hashMapOf<Marker, PhotoDataResponse>()
     var mMap: GoogleMap? = null
     var isCountryPhotoVisible:Boolean = false
     var isOceanPhotoVisible:Boolean = false
+
     fun init(context: Context) {
-
         repository = Repository(context)
-        descriptionUtils = DescriptionUtils(context)
-
+        photoDataUtils = PhotoDataUtils(context)
     }
 
     fun getCountries(login: String): MutableLiveData<Resource<List<CountryResponse?>?>>? {
@@ -45,28 +44,21 @@ class MapViewModel:ViewModel() {
         return countries
     }
 
-    fun getCountryPhotoDescriptions(login: String, country:String): MutableLiveData<Resource<List<PhotoDescriptionResponse>?>>? {
-//        var repository = Repository(context)
-
-        countryPhotoDescriptionData = repository.getCountryPhotoDescriptions(login, country)
-        return countryPhotoDescriptionData
+    fun getCountryPhotoData(login: String, country:String): MutableLiveData<Resource<List<PhotoDataResponse>?>>? {
+        countryPhotoDataData = repository.getCountryPhotoData(login, country)
+        return countryPhotoDataData
     }
 
-    fun getOceanPhotoDescriptions(login: String): MutableLiveData<Resource<List<PhotoDescriptionResponse>?>>? {
-
-        if (oceanPhotoDescriptionData != null) {
-            return oceanPhotoDescriptionData
+    fun getOceanPhotoData(login: String): MutableLiveData<Resource<List<PhotoDataResponse>?>>? {
+        if (oceanPhotoDataData != null) {
+            return oceanPhotoDataData
         } else {
-            oceanPhotoDescriptionData = repository.getOceanPhotoDescriptions(login)
+            oceanPhotoDataData = repository.getOceanPhotoData(login)
         }
-
-        return oceanPhotoDescriptionData
+        return oceanPhotoDataData
     }
 
     fun showCountries(layer: GeoJsonLayer?, countriesNameList:List<String?>?) {
-
-
-
             var availablePolygonsStyle = GeoJsonPolygonStyle()
             availablePolygonsStyle.isClickable = true
             availablePolygonsStyle.isVisible = true
@@ -81,51 +73,35 @@ class MapViewModel:ViewModel() {
                 }
             }
             isCountryPhotoVisible = true
-
-
     }
+
     fun hideCountries(layer:GeoJsonLayer?, markerCollection: MarkerManager.Collection?) {
         markerCollection?.clear()
         var availablePolygonsStyle = GeoJsonPolygonStyle()
         availablePolygonsStyle.isClickable = false
         availablePolygonsStyle.isVisible = false
-//        var polygonStyle =layer?.defaultPolygonStyle
-//        polygonStyle = availablePolygonsStyle
-//
-////        var defStyle = layer?.defaultPolygonStyle
-////        defStyle = availablePolygonsStyle
+
        layer?.removeLayerFromMap()
-//        for (feature: GeoJsonFeature in layer?.features!!) {
-//
-//            feature.polygonStyle = availablePolygonsStyle
-//        }
         isCountryPhotoVisible = false
-
-
     }
 
-    fun showMarkers(listOfDescriptions:List<PhotoDescriptionResponse>?, markerCollection: MarkerManager.Collection, icon: BitmapDescriptor?) {
-        for(photoDescription:PhotoDescriptionResponse in listOfDescriptions!!) {
-//            sessionManager.savePhotoDescription(photoDescription)
-            var position = photoDescription.latitude?.let { photoDescription.longitude?.let { it1 -> LatLng(it, it1) } }
-
+    fun showMarkers(listOfData:List<PhotoDataResponse>?, markerCollection: MarkerManager.Collection, icon: BitmapDescriptor?) {
+        for(photoData:PhotoDataResponse in listOfData!!) {
+            var position = photoData.latitude?.let { photoData.longitude?.let { it1 -> LatLng(it, it1) } }
 
             var marker = markerCollection.addMarker(position?.let {
                 MarkerOptions()
                         .icon(icon)
-                        .title(photoDescription.date)
+                        .title(photoData.date)
                         .position(it)
                         .visible(true)
                         .draggable(false)
             })
-            markerPhotoMap[marker] = photoDescription
-
+            markerPhotoMap[marker] = photoData
         }
     }
 
-    fun saveAddressInfo(photoDescription: PhotoDescriptionResponse?) {
-        descriptionUtils.saveAddressInfo(photoDescription)
+    fun saveAddressInfo(photoData: PhotoDataResponse?) {
+        photoDataUtils.saveAddressInfo(photoData)
     }
-
-
 }

@@ -1,20 +1,16 @@
 package com.example.traveljournal.data.retrofit;
 
-//import okhttp3.Call;
 import com.example.traveljournal.data.model.request.LoginRequest;
 import com.example.traveljournal.data.model.request.SignUpRequest;
-
-//import com.example.traveljournal.data.model.Response.ContinentResponse;
 import com.example.traveljournal.data.model.response.CountryResponse;
 import com.example.traveljournal.data.model.response.JwtResponse;
 import com.example.traveljournal.data.model.response.MessageResponse;
-import com.example.traveljournal.data.model.response.PagedDescriptionResponse;
-import com.example.traveljournal.data.model.response.PhotoDescriptionResponse;
+import com.example.traveljournal.data.model.response.PagedPhotoDataResponse;
+import com.example.traveljournal.data.model.response.PhotoDataResponse;
 
 import java.util.List;
 
 import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -37,25 +33,25 @@ public interface TravelJournalService {
     Call<List<CountryResponse>> getCountriesInContinent(@Path("login") String login);
 
     @GET("{login}/map/{country}")
-    Call<List<PhotoDescriptionResponse>> getDescriptions(
+    Call<List<PhotoDataResponse>> getPhotoData(
             @Path("login") String login,
             @Path("country") String country);
 
     @GET("{login}/map/ocean")
-    Call<List<PhotoDescriptionResponse>> getOceanPhotoDescriptions(@Path("login") String login);
+    Call<List<PhotoDataResponse>> getOceanPhotoData(@Path("login") String login);
 
-    @GET("{login}/photo/description")
-    Call<PagedDescriptionResponse> getPagedDescriptions(@Path("login") String login,
-                                                        @Query("page") int page,
-                                                        @Query("size") int size);
+    @GET("{login}/photo/photodata")
+    Call<PagedPhotoDataResponse> getPagedPhotoData(@Path("login") String login,
+                                                   @Query("page") int page,
+                                                   @Query("size") int size);
 
     @Multipart
     @POST("{login}/photo")
-    Call<PhotoDescriptionResponse> addPhoto(@Path("login") String login,
-                                            @Part MultipartBody.Part file);
+    Call<PhotoDataResponse> addPhoto(@Path("login") String login,
+                                     @Part MultipartBody.Part file);
 
     @PUT("{login}/photo/{photoId}/description")
-    Call<PhotoDescriptionResponse> updateDescription(@Path("login") String login,
-                                            @Path("photoId") String photoId,
-                                            @Query("description") String description);
+    Call<PhotoDataResponse> updateDescription(@Path("login") String login,
+                                              @Path("photoId") String photoId,
+                                              @Query("description") String description);
 }

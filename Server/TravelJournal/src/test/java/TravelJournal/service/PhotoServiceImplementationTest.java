@@ -1,9 +1,9 @@
 package TravelJournal.service;
 
-import TravelJournal.model.photo.PhotoDescription;
-import TravelJournal.payload.response.PhotoDescriptionResponse;
+import TravelJournal.model.photo.PhotoData;
+import TravelJournal.payload.response.PhotoDataResponse;
 import TravelJournal.repository.cloudStorage.GoogleDriveImplementation;
-import TravelJournal.repository.photo.PhotoDescriptionRepository;
+import TravelJournal.repository.photo.PhotoDataRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
@@ -29,7 +29,7 @@ public class PhotoServiceImplementationTest {
     @Autowired
     GoogleDriveImplementation cloudStorage;
     @Autowired
-    PhotoDescriptionRepository photoDescriptionRepository;
+    PhotoDataRepository photoDataRepository;
 
     private com.google.api.services.drive.model.File testUserFolder = null; // Delete folder with this id after every test
     private String rootFolderId = "";
@@ -46,24 +46,24 @@ public class PhotoServiceImplementationTest {
         @AfterEach
         public void cleanUp() throws IOException {
             cloudStorage.deleteFile(testUserFolder.getId());
-            photoDescriptionRepository.deleteAll();
+            photoDataRepository.deleteAll();
         }
 
         @Test
         @DisplayName("Get available countries for given user")
         public void testGetAvailableCountries() {
-            PhotoDescription polandPhotoDescription = new PhotoDescription()
+            PhotoData polandPhotoData = new PhotoData()
                     .setOwner("TestUser")
                     .setCountry("Poland");
-            PhotoDescription germanyPhotoDescription = new PhotoDescription()
+            PhotoData germanyPhotoData = new PhotoData()
                     .setOwner("TestUser")
                     .setCountry("Germany");
-            PhotoDescription unitedStatesPhotoDescription = new PhotoDescription()
+            PhotoData unitedStatesPhotoData = new PhotoData()
                     .setOwner("TestUser")
                     .setCountry("United States");
-            photoDescriptionRepository.save(polandPhotoDescription);
-            photoDescriptionRepository.save(germanyPhotoDescription);
-            photoDescriptionRepository.save(unitedStatesPhotoDescription);
+            photoDataRepository.save(polandPhotoData);
+            photoDataRepository.save(germanyPhotoData);
+            photoDataRepository.save(unitedStatesPhotoData);
             Set<String> expectedCountries = new HashSet<>();
             expectedCountries.add("Poland");
             expectedCountries.add("Germany");
@@ -86,24 +86,24 @@ public class PhotoServiceImplementationTest {
             String testUser = "TestUser";
             String expectedCountry = "Other";
 
-            PhotoDescription actualPhotoDescription = photoService.addPhoto(photoNoLocation, testUser, rootFolderId);
+            PhotoData actualPhotoData = photoService.addPhoto(photoNoLocation, testUser, rootFolderId);
             com.google.api.services.drive.model.File expectedOtherFolder = photoService.getFolder(
                     "Other",
                     testUserFolder.getId());
-            List<PhotoDescriptionResponse> expectedPhotoDescriptions = photoDescriptionRepository.findByOwner("TestUser");
+            List<PhotoDataResponse> actualListPhotoData = photoDataRepository.findByOwner("TestUser");
 
-            assertNull(actualPhotoDescription.getLatitude(),
+            assertNull(actualPhotoData.getLatitude(),
                     "Latitude of photo with no location is not null");
-            assertNull(actualPhotoDescription.getLongitude(),
+            assertNull(actualPhotoData.getLongitude(),
                     "Longitude of photo with no location is not null");
-            assertEquals(actualPhotoDescription.getCountry(),
+            assertEquals(actualPhotoData.getCountry(),
                     expectedCountry,
                     "Photo without location should have Other as country value");
             assertNotNull(expectedOtherFolder,
                     "Did not find folder with no location photos");
-            assertEquals(expectedPhotoDescriptions.size(),
+            assertEquals(actualListPhotoData.size(),
                     1,
-                    "Added more than one photo or photo description");
+                    "Added more than one photo or photo data");
         }
 
         @Test
@@ -113,102 +113,102 @@ public class PhotoServiceImplementationTest {
             String testUser = "TestUser";
             String expectedCountry = "United Kingdom";
 
-            PhotoDescription actualPhotoDescription = photoService.addPhoto(photoNoLocation, testUser, rootFolderId);
+            PhotoData actualPhotoData = photoService.addPhoto(photoNoLocation, testUser, rootFolderId);
             com.google.api.services.drive.model.File expectedOtherFolder = photoService.getFolder(
                     "United Kingdom",
                     testUserFolder.getId());
-            List<PhotoDescriptionResponse> expectedPhotoDescriptions = photoDescriptionRepository.findByOwner("TestUser");
+            List<PhotoDataResponse> actualListPhotoData = photoDataRepository.findByOwner("TestUser");
 
-            assertNotNull(actualPhotoDescription.getLatitude(),
+            assertNotNull(actualPhotoData.getLatitude(),
                     "Latitude of photo with location is null");
-            assertNotNull(actualPhotoDescription.getLongitude(),
+            assertNotNull(actualPhotoData.getLongitude(),
                     "Longitude of photo with location is null");
-            assertEquals(actualPhotoDescription.getCountry(),
+            assertEquals(actualPhotoData.getCountry(),
                     expectedCountry,
                     "Photo without location should have Other as country value");
             assertNotNull(expectedOtherFolder,
                     "Did not find folder United Kingdom in TestUser folder");
-            assertEquals(expectedPhotoDescriptions.size(),
+            assertEquals(actualListPhotoData.size(),
                     1,
-                    "Added more than one photo or photo description");
+                    "Added more than one photo or photo data");
         }
 
         @Test
-        @DisplayName("Get descriptions of user in single country")
+        @DisplayName("Get PhotoData of user in single country")
         public void testGetPhotosInCountry() {
-            PhotoDescription testUserPolandDescriptionFirst = new PhotoDescription()
+            PhotoData testUserPolandPhotoDataFirst = new PhotoData()
                     .setCountry("Poland")
                     .setOwner("TestUser");
-            PhotoDescription testUserPolandDescriptionSecond = new PhotoDescription()
+            PhotoData testUserPolandPhotoDataSecond = new PhotoData()
                     .setCountry("Poland")
                     .setOwner("TestUser");
-            PhotoDescription testUserPolandDescriptionThird = new PhotoDescription()
+            PhotoData testUserPolandPhotoDataThird = new PhotoData()
                     .setCountry("Poland")
                     .setOwner("TestUser");
-            PhotoDescription expectedOtherUserPolandDescription = new PhotoDescription()
+            PhotoData expectedOtherUserPolandPhotoData = new PhotoData()
                     .setCountry("Poland")
                     .setOwner("OtherUser");
-            PhotoDescription expectedTestUserGermanyDescription = new PhotoDescription()
+            PhotoData expectedTestUserGermanyPhotoData = new PhotoData()
                     .setCountry("Germany")
                     .setOwner("TestUser");
-            photoDescriptionRepository.save(testUserPolandDescriptionFirst);
-            photoDescriptionRepository.save(testUserPolandDescriptionSecond);
-            photoDescriptionRepository.save(testUserPolandDescriptionThird);
-            photoDescriptionRepository.save(expectedOtherUserPolandDescription);
-            photoDescriptionRepository.save(expectedTestUserGermanyDescription);
+            photoDataRepository.save(testUserPolandPhotoDataFirst);
+            photoDataRepository.save(testUserPolandPhotoDataSecond);
+            photoDataRepository.save(testUserPolandPhotoDataThird);
+            photoDataRepository.save(expectedOtherUserPolandPhotoData);
+            photoDataRepository.save(expectedTestUserGermanyPhotoData);
 
-            List<PhotoDescription> listTestUserPolandDescriptions = photoService.getPhotosInCountry(
+            List<PhotoData> listTestUserPolandPhotoData = photoService.getPhotosInCountry(
                     "TestUser",
                     "Poland");
-            List<PhotoDescription> listTestUserGermanyDescriptions = photoService.getPhotosInCountry(
+            List<PhotoData> listTestUserGermanyPhotoData = photoService.getPhotosInCountry(
                     "TestUser",
                     "Germany");
-            List<PhotoDescription> listOtherUserPolandDescriptions = photoService.getPhotosInCountry(
+            List<PhotoData> listOtherUserPolandPhotoData = photoService.getPhotosInCountry(
                     "OtherUser",
                     "Poland");
-            PhotoDescription actualTestUserGermanyDescription = listTestUserGermanyDescriptions.get(0);
-            PhotoDescription actualOtherUserPolandDescription = listOtherUserPolandDescriptions.get(0);
+            PhotoData actualTestUserGermanyPhotoData = listTestUserGermanyPhotoData.get(0);
+            PhotoData actualOtherUserPolandPhotoData = listOtherUserPolandPhotoData.get(0);
 
-            assertEquals(listTestUserPolandDescriptions.size(),
+            assertEquals(listTestUserPolandPhotoData.size(),
                     3,
-                    "Should got 3 descriptions for Test User in Poland");
-            assertEquals(listTestUserGermanyDescriptions.size(),
+                    "Should got 3 PhotoData for Test User in Poland");
+            assertEquals(listTestUserGermanyPhotoData.size(),
                     1,
-                    "Should got 1 description for Test User in Germany");
-            assertEquals(listOtherUserPolandDescriptions.size(),
+                    "Should got 1 PhotoData for Test User in Germany");
+            assertEquals(listOtherUserPolandPhotoData.size(),
                     1,
-                    "Should got 1 description for Other User in Poland");
-            assertThat(actualTestUserGermanyDescription)
-                    .withFailMessage("Expected and actual Description for TestUser in Germany are not equal")
-                    .isEqualTo(expectedTestUserGermanyDescription);
-            assertThat(actualOtherUserPolandDescription)
-                    .withFailMessage("Expected and actual Description for OtherUser in Poland are not equal")
-                    .isEqualTo(expectedOtherUserPolandDescription);
+                    "Should got 1 PhotoData for Other User in Poland");
+            assertThat(actualTestUserGermanyPhotoData)
+                    .withFailMessage("Expected and actual PhotoData for TestUser in Germany are not equal")
+                    .isEqualTo(expectedTestUserGermanyPhotoData);
+            assertThat(actualOtherUserPolandPhotoData)
+                    .withFailMessage("Expected and actual PhotoData for OtherUser in Poland are not equal")
+                    .isEqualTo(expectedOtherUserPolandPhotoData);
         }
 
         @Test
-        @DisplayName("Updating description")
+        @DisplayName("Updating description of PhotoData")
         public void testUpdateDescription() {
-            PhotoDescription description = photoDescriptionRepository.save(new PhotoDescription()
+            PhotoData photoData = photoDataRepository.save(new PhotoData()
                     .setCountry("Poland")
                     .setOwner("TestUser")
                     .setPhotoId("1")
             );
-            String updatedText = "Newly Updated Description";
+            String updatedDescription = "Newly Updated Description";
 
-            PhotoDescription updatedPhotoDescription = photoService.updateDescription(
-                    description.getPhotoId(),
-                    updatedText);
+            PhotoData updatedPhotoData = photoService.updateDescription(
+                    photoData.getPhotoId(),
+                    updatedDescription);
 
-            assertEquals(updatedPhotoDescription.getDescription(),
-                    updatedText,
-                    "Should updated description");
+            assertEquals(updatedPhotoData.getDescription(),
+                    updatedDescription,
+                    "Should updated photoData");
         }
 
         @Test
-        @DisplayName("Get single photo description")
-        public void testGetPhotoDescription() {
-            PhotoDescription expectedDescription = photoDescriptionRepository.save(new PhotoDescription()
+        @DisplayName("Get single photo data")
+        public void testGetPhotoData() {
+            PhotoData expectedPhotoData = photoDataRepository.save(new PhotoData()
                     .setCountry("Poland")
                     .setOwner("TestUser")
                     .setDate("2000-01-01")
@@ -219,11 +219,11 @@ public class PhotoServiceImplementationTest {
                     .setRotateAngle(5)
             );
 
-            PhotoDescription actualDescription = photoService.getPhotoDescription(expectedDescription.getPhotoId());
+            PhotoData actualPhotoData = photoService.getPhotoData(expectedPhotoData.getPhotoId());
 
-            assertThat(actualDescription)
-                    .withFailMessage("ExpectedDescription is not equal actualDescription")
-                    .isEqualTo(expectedDescription);
+            assertThat(actualPhotoData)
+                    .withFailMessage("expectedPhotoData is not equal actualPhotoData")
+                    .isEqualTo(expectedPhotoData);
         }
 
         @Test
@@ -231,23 +231,23 @@ public class PhotoServiceImplementationTest {
         public void testDeleteFileTestUserShouldHaveOnePhoto() throws GeneralSecurityException, IOException {
             File noLocationImage = new File("src/test/resources/noLocation.jpg");
             File withLocationImage = new File("src/test/resources/noLocation.jpg");
-            PhotoDescription noLocationDescription = photoService.addPhoto(
+            PhotoData noLocationPhotoData = photoService.addPhoto(
                     noLocationImage,
                     "TestUser",
                     rootFolderId);
-            PhotoDescription withLocationDescription = photoService.addPhoto(
+            PhotoData withLocationPhotoData = photoService.addPhoto(
                     withLocationImage,
                     "TestUser",
                     rootFolderId);
 
-            photoService.deleteFile(noLocationDescription.getPhotoId());
-            List<PhotoDescriptionResponse> testUserPhotoDescriptions = photoDescriptionRepository.findByOwner("TestUser");
-            PhotoDescription notExistingDescription = photoDescriptionRepository.findByPhotoId(
-                    noLocationDescription.getPhotoId());
+            photoService.deleteFile(noLocationPhotoData.getPhotoId());
+            List<PhotoDataResponse> testUserPhotoDescriptions = photoDataRepository.findByOwner("TestUser");
+            PhotoData notExistingDescription = photoDataRepository.findByPhotoId(
+                    noLocationPhotoData.getPhotoId());
 
             assertEquals(testUserPhotoDescriptions.size(),
                     1,
-                    "Test User should have 1 description after delete");
+                    "Test User should have 1 photoData document after delete");
             assertNull(notExistingDescription,
                     "Should not find deleted resource");
         }
@@ -267,7 +267,7 @@ public class PhotoServiceImplementationTest {
                 rootFolderId);
 
         photoService.deleteResources("TestUser", "Test");
-        List<PhotoDescriptionResponse> descriptions = photoDescriptionRepository.findByOwner("TestUser");
+        List<PhotoDataResponse> descriptions = photoDataRepository.findByOwner("TestUser");
 
         assertTrue(descriptions.isEmpty(),
                 "User should not have any resources");

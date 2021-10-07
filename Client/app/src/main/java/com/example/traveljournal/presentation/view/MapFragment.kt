@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.AnimationDrawable
-import android.location.Geocoder
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,12 +19,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.example.traveljournal.R
-import com.example.traveljournal.data.model.response.PhotoDescriptionResponse
+import com.example.traveljournal.data.model.response.PhotoDataResponse
 import com.example.traveljournal.data.SessionManager
 import com.example.traveljournal.data.repository.Resource
 import com.example.traveljournal.presentation.viewModel.MapViewModel
 import com.example.traveljournal.utils.MapUtils
-import com.example.traveljournal.utils.StringUtills
+import com.example.traveljournal.utils.StringUtils
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -40,8 +39,6 @@ import com.google.maps.android.data.Feature
 import com.google.maps.android.data.geojson.*
 
 class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GeoJsonLayer.GeoJsonOnFeatureClickListener {
-
-//    private var mMap: GoogleMap? = null
     private var collection:MarkerManager.Collection? = null
     var markerManager:MarkerManager? = null
     var groundOverlayManager:GroundOverlayManager? = null
@@ -49,8 +46,8 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListen
     var polylineManager:PolylineManager? = null
     private lateinit var login: String
     private var layer:GeoJsonLayer? = null
-    private var markerPhotoMap = hashMapOf<Marker, PhotoDescriptionResponse>()
-    private var stringUtils: StringUtills = StringUtills()
+    private var markerPhotoMap = hashMapOf<Marker, PhotoDataResponse>()
+    private var stringUtils: StringUtils = StringUtils()
     private var mapUtils: MapUtils = MapUtils()
     private lateinit var mapButton: Button
     private lateinit var photoButton: Button
@@ -64,6 +61,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListen
     private lateinit var fabOceanPhotoButton:ExtendedFloatingActionButton
     private var isCountryPhotoVisible:Boolean = false
     private val mapViewModel: MapViewModel by viewModels()
+
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -78,11 +76,13 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListen
 
         return rootView
     }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         fragmentContext = context;
         sessionManager = SessionManager(context);
     }
+
     override fun onViewCreated(
             view: View,
             savedInstanceState: Bundle?
@@ -124,10 +124,8 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListen
                             loadingText.visibility = View.INVISIBLE
                             animationDrawable.stop()
                         }
-
                         Resource.Status.LOADING -> {
                         }
-
                         Resource.Status.ERROR -> {
                             progressBar.visibility = View.INVISIBLE
                             loadingText.visibility = View.INVISIBLE
@@ -144,7 +142,6 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListen
 
         fabOceanPhotoButton.setOnClickListener {
             if(!mapViewModel.isOceanPhotoVisible) {
-
                 fabOceanPhotoButton.shrink()
                 progressBar.visibility = View.VISIBLE
                 loadingText.visibility = View.VISIBLE
@@ -152,7 +149,7 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListen
 
                 collection?.clear()
 
-                mapViewModel.getOceanPhotoDescriptions(login)?.observe(viewLifecycleOwner, Observer {
+                mapViewModel.getOceanPhotoData(login)?.observe(viewLifecycleOwner, Observer {
                     when(it?.status) {
                         Resource.Status.SUCCESS -> {
                             mapViewModel.showMarkers(it.data, collection!!, vectorToBitmap(R.drawable.marker_icon, R.color.cover_text))
@@ -160,10 +157,8 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListen
                             loadingText.visibility = View.INVISIBLE
                             animationDrawable.stop()
                         }
-
                         Resource.Status.LOADING -> {
                         }
-
                         Resource.Status.ERROR -> {
                             progressBar.visibility = View.INVISIBLE
                             loadingText.visibility = View.INVISIBLE
@@ -179,12 +174,10 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListen
                 mapViewModel.isOceanPhotoVisible = false
             }
         }
-
     }
-    override fun onMapReady(googleMap: GoogleMap){
 
+    override fun onMapReady(googleMap: GoogleMap){
         mapViewModel.mMap = googleMap
-//        mMap = googleMap
 
         mapViewModel.mMap!!.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.style_json))
 
@@ -198,13 +191,11 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListen
         mapViewModel.mMap!!.uiSettings.isMapToolbarEnabled = false
 
         layer = loadGeojson(mapViewModel.mMap!!, R.raw.countries, markerManager!!, groundOverlayManager!!, polygonManager, polylineManager)
-//        layer?.addLayerToMap()
 
         fabCountriesPhotoButton.isClickable = true
         fabCountriesPhotoButton.visibility = View.VISIBLE
 
         fabOceanPhotoButton.visibility = View.VISIBLE
-//        getCountries(fragmentContext, mMap!!, layer)
         mapViewModel.mMap!!.setMaxZoomPreference(5.toFloat())
 
         layer?.setOnFeatureClickListener(this)
@@ -241,20 +232,8 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListen
         return BitmapDescriptorFactory.fromBitmap(bitmap)
     }
     override fun onMarkerClick(marker: Marker): Boolean {
-
-        // Retrieve the data from the marker.
-//        val clickCount = marker.tag as? Int
-
-        var photoDescription = mapViewModel.markerPhotoMap[marker]
-        mapViewModel.saveAddressInfo(photoDescription)
-
-
-        Toast.makeText(
-                context,
-                marker.title,
-                Toast.LENGTH_SHORT
-        ).show()
-
+        var photoData = mapViewModel.markerPhotoMap[marker]
+        mapViewModel.saveAddressInfo(photoData)
         Navigator.navigateToPhoto(activity)
         return false
     }
@@ -264,10 +243,9 @@ class MapFragment: Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListen
         loadingText.visibility = View.VISIBLE
         animationDrawable.start()
         collection?.clear()
-        mapViewModel.getCountryPhotoDescriptions(login, feature?.getProperty("NAME")!!)?.observe(viewLifecycleOwner, Observer {
+        mapViewModel.getCountryPhotoData(login, feature?.getProperty("NAME")!!)?.observe(viewLifecycleOwner, Observer {
             when(it?.status) {
                 Resource.Status.SUCCESS -> {
-
                     mapViewModel.showMarkers(it.data, collection!!, vectorToBitmap(R.drawable.marker_icon, R.color.dark_brown))
                     progressBar.visibility = View.INVISIBLE
                     loadingText.visibility = View.INVISIBLE

@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.annotation.ColorRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -27,7 +26,6 @@ class LoginFragment: Fragment() {
     private lateinit var animationDrawable: AnimationDrawable
     private lateinit var progressBar: ImageView
     private val loginViewModel: LoginViewModel by viewModels()
-//    private lateinit var gson: Gson;
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -77,7 +75,6 @@ class LoginFragment: Fragment() {
                             Navigator.navigateToQuote(activity)
                         }
                         Resource.Status.LOADING -> {
-
                         }
                         Resource.Status.ERROR -> {
                             progressBar.visibility = View.INVISIBLE
@@ -87,7 +84,6 @@ class LoginFragment: Fragment() {
                         }
                     }
                 })
-
         }
         signUpButton.setOnClickListener {
             Navigator.navigateToRegister(activity);

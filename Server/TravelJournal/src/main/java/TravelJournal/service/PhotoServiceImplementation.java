@@ -1,9 +1,9 @@
 package TravelJournal.service;
 
-import TravelJournal.model.photo.PhotoDescription;
-import TravelJournal.payload.response.PhotoDescriptionResponse;
+import TravelJournal.model.photo.PhotoData;
+import TravelJournal.payload.response.PhotoDataResponse;
 import TravelJournal.repository.cloudStorage.GoogleDriveRepository;
-import TravelJournal.repository.photo.PhotoDescriptionRepository;
+import TravelJournal.repository.photo.PhotoDataRepository;
 import TravelJournal.utils.location.GeocodingAPI;
 import TravelJournal.utils.photo.PhotoEXIF;
 import TravelJournal.utils.randomGenerator.RandomIntGenerator;
@@ -36,7 +36,7 @@ public class PhotoServiceImplementation implements PhotoService{
     @Autowired
     private GoogleDriveRepository googleDriveRepository;
     @Autowired
-    private PhotoDescriptionRepository photoDescriptionRepository;
+    private PhotoDataRepository photoDataRepository;
     @Autowired
     private RandomIntGenerator randomIntGenerator;
     @Autowired
@@ -48,7 +48,7 @@ public class PhotoServiceImplementation implements PhotoService{
      * {@inheritDoc}
      */
     @Override
-    public PhotoDescription addPhoto(File photo, String user, String parentId) throws GeneralSecurityException, IOException {
+    public PhotoData addPhoto(File photo, String user, String parentId) throws GeneralSecurityException, IOException {
 
         String countryName;
 
@@ -61,7 +61,6 @@ public class PhotoServiceImplementation implements PhotoService{
             countryName = "Other"; // Photos without location
         }
 
-//        String applicationFolderId = googleDriveRepository.searchFolder("application", "root").getId();
         com.google.api.services.drive.model.File userFolder = googleDriveRepository.searchFolder(user, parentId);
         com.google.api.services.drive.model.File countryFolder = googleDriveRepository.searchFolder(countryName, userFolder.getId());
 
@@ -79,7 +78,7 @@ public class PhotoServiceImplementation implements PhotoService{
                 randomIntGenerator.generateRandomIntWithinRange(1, 9),
                 randomIntGenerator.generateRandomIntWithinRange(352,359)); // Random value between 1-9 and 352-359 degrees
 
-        TravelJournal.model.photo.PhotoDescription photoDescription = new PhotoDescription()
+        PhotoData photoData = new PhotoData()
                 .setOwner(user)
                 .setPhotoId(googlePhoto.getId())
                 .setDescription("")
@@ -87,29 +86,29 @@ public class PhotoServiceImplementation implements PhotoService{
                 .setDate(date)
                 .setRotateAngle(rotateAngle);
         if (geoLocation != null) {
-            photoDescription
+            photoData
                     .setLatitude(geoLocation.getLatitude())
                     .setLongitude(geoLocation.getLongitude());
         }
-        return photoDescriptionRepository.save(photoDescription);
+        return photoDataRepository.save(photoData);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<PhotoDescription> getPhotosInCountry(String user, String country) {
-        return photoDescriptionRepository.findByOwnerAndCountry(user, country);
+    public List<PhotoData> getPhotosInCountry(String user, String country) {
+        return photoDataRepository.findByOwnerAndCountry(user, country);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public PhotoDescription updateDescription(String photoId, String description) {
-        PhotoDescription photoDescription = photoDescriptionRepository.findByPhotoId(photoId);
-        photoDescription.setDescription(description);
-        return photoDescriptionRepository.save(photoDescription);
+    public PhotoData updateDescription(String photoId, String description) {
+        PhotoData photoData = photoDataRepository.findByPhotoId(photoId);
+        photoData.setDescription(description);
+        return photoDataRepository.save(photoData);
     }
 
     /**
@@ -124,8 +123,8 @@ public class PhotoServiceImplementation implements PhotoService{
      * {@inheritDoc}
      */
     @Override
-    public PhotoDescription getPhotoDescription(String photoId) {
-        return photoDescriptionRepository.findByPhotoId(photoId);
+    public PhotoData getPhotoData(String photoId) {
+        return photoDataRepository.findByPhotoId(photoId);
     }
 
     /**
@@ -148,10 +147,10 @@ public class PhotoServiceImplementation implements PhotoService{
      * {@inheritDoc}
      */
     @Override
-    public Page<PhotoDescriptionResponse> getUserPhotoDescriptions(String user, int page, int pageSize) {
+    public Page<PhotoDataResponse> getUserPhotoData(String user, int page, int pageSize) {
         Pageable paging = PageRequest.of(page, pageSize);
 
-        return photoDescriptionRepository.findByOwner(user, paging);
+        return photoDataRepository.findByOwner(user, paging);
     }
 
     /**
@@ -161,10 +160,10 @@ public class PhotoServiceImplementation implements PhotoService{
     public Set<String> getAvailableCountries(String user)  {
 
         Set<String> countries = new HashSet<>();
-        List<PhotoDescriptionResponse> allUserDescriptions = photoDescriptionRepository.findByOwner(user);
+        List<PhotoDataResponse> allUserDescriptions = photoDataRepository.findByOwner(user);
 
-        for (PhotoDescriptionResponse photoDescriptionResponse : allUserDescriptions) {
-            countries.add(photoDescriptionResponse.getCountry());
+        for (PhotoDataResponse photoDataResponse : allUserDescriptions) {
+            countries.add(photoDataResponse.getCountry());
         }
         return countries;
     }
@@ -175,7 +174,7 @@ public class PhotoServiceImplementation implements PhotoService{
     @Override
     public void deleteFile(String fileId) throws GeneralSecurityException, IOException {
         googleDriveRepository.deleteFile(fileId);
-        photoDescriptionRepository.deleteByPhotoId(fileId);
+        photoDataRepository.deleteByPhotoId(fileId);
     }
 
     /**
@@ -183,7 +182,7 @@ public class PhotoServiceImplementation implements PhotoService{
      */
     @Override
     public void deleteResources(String login, String applicationFolder) throws GeneralSecurityException, IOException {
-        photoDescriptionRepository.deleteByOwner(login);
+        photoDataRepository.deleteByOwner(login);
 
         String applicationFolderId = googleDriveRepository.searchFolder(applicationFolder, "root").getId();
         String userFolderId = googleDriveRepository.searchFolder(login, applicationFolderId).getId();

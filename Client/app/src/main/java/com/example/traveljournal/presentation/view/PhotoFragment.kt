@@ -59,7 +59,6 @@ class PhotoFragment: Fragment() {
             savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
-//        System.out.println(SessionManager)
         mapButton = view.findViewById(R.id.map_button)
         galleryButton = view.findViewById(R.id.gallery_button)
         photoButton = view.findViewById(R.id.photo_button)
@@ -81,25 +80,21 @@ class PhotoFragment: Fragment() {
         mapButton.scaleX = (-1).toFloat()
         galleryButton.scaleX = (-1).toFloat()
         photoButton.scaleX = (-1).toFloat()
-//        var country = sessionManager.fetchCountry()
-//        var continent = sessionManager.fetchContinent()
-        var photoDescription = sessionManager.fetchPhotoDescription()
-        rotate =  photoDescription?.rotateAngle?.toFloat()!!
+        var photoDataResponse = sessionManager.fetchPhotoData()
+        rotate =  photoDataResponse?.rotateAngle?.toFloat()!!
         photo.rotation = rotate
-        photoFrame.rotation = photoDescription?.rotateAngle?.toFloat()!!
+        photoFrame.rotation = photoDataResponse?.rotateAngle?.toFloat()!!
 
         var placeName = sessionManager.fetchCountryName()
         var subAdmin = sessionManager.fetchSubAdmin()
         var placeAddress = sessionManager.fetchAddress()
 
         val serverName = getString(R.string.server_name)
-        var photoUrl = serverName + sessionManager.fetchLogin()  + "/photo/"  + photoDescription?.photoId
+        var photoUrl = serverName + sessionManager.fetchLogin()  + "/photo/"  + photoDataResponse?.photoId
         var glideUrl:GlideUrl = GlideUrl(photoUrl, LazyHeaders.Builder()
                 .addHeader("Authorization", "Bearer " + sessionManager.fetchAuthToken())
                 .build())
-//        var appGlide = AppGlideModule()
-//
-//        appGlide.with()
+
         var circularProgressDrawable = CircularProgressDrawable(fragmentContext)
         circularProgressDrawable.backgroundColor = Color.TRANSPARENT
         circularProgressDrawable.setStartEndTrim(0.toFloat(), 1.toFloat())
@@ -120,15 +115,12 @@ class PhotoFragment: Fragment() {
                 .into(fullScreen)
 
         countryTextView.text = placeName
-        dateTextView.text = photoDescription?.date
+        dateTextView.text = photoDataResponse?.date
 
-        System.out.println(photoDescription?.date)
         if (!placeAddress.equals(null)) {
-
             addressTextView.text = placeAddress
         }
         if (!placeAddress.equals(null)) {
-
             subAdminAreaTextView.text = subAdmin
         }
         photo.setOnClickListener {
@@ -145,11 +137,7 @@ class PhotoFragment: Fragment() {
                 photoButton.isClickable = false
 
                 isImageClicked = true
-
-
-
             }
-
         }
 
         fullScreen.setOnClickListener {
@@ -192,6 +180,5 @@ class PhotoFragment: Fragment() {
         descriptionPageButton.setOnClickListener {
             Navigator.navigateToDescription(activity)
         }
-
     }
 }

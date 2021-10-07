@@ -73,7 +73,6 @@ class RegisterFragment: Fragment() {
                }
            })
         }
-
         signInButton.setOnClickListener {
             Navigator.navigateToLogin(activity)
         }

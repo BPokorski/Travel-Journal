@@ -1,6 +1,7 @@
 package TravelJournal.controller.PhotoController;
 
-import TravelJournal.payload.response.PhotoDescriptionResponse;
+import TravelJournal.model.photo.PhotoData;
+import TravelJournal.payload.response.PhotoDataResponse;
 import TravelJournal.service.PhotoService;
 import TravelJournal.utils.photo.MultipartToFileConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,63 +41,63 @@ public class PhotoController {
 
         // Application folder is root folder for main application
         String appFolderId = photoService.getFolder("Application", "root").getId();
-        TravelJournal.model.photo.PhotoDescription photoDescription = photoService.addPhoto(photo, login, appFolderId);
+        PhotoData photoData = photoService.addPhoto(photo, login, appFolderId);
 
         photo.delete();
-        if(photoDescription.getLongitude() != null && photoDescription.getLatitude() !=null) {
+        if(photoData.getLongitude() != null && photoData.getLatitude() !=null) {
 
-            return ResponseEntity.ok(new PhotoDescriptionResponse(
-                    photoDescription.getId(),
-                    photoDescription.getPhotoId(),
-                    photoDescription.getDescription(),
-                    photoDescription.getDate(),
-                    photoDescription.getCountry(),
-                    photoDescription.getLatitude(),
-                    photoDescription.getLongitude(),
-                    photoDescription.getRotateAngle()
+            return ResponseEntity.ok(new PhotoDataResponse(
+                    photoData.getId(),
+                    photoData.getPhotoId(),
+                    photoData.getDescription(),
+                    photoData.getDate(),
+                    photoData.getCountry(),
+                    photoData.getLatitude(),
+                    photoData.getLongitude(),
+                    photoData.getRotateAngle()
             ));
 
         } else {
-            return ResponseEntity.ok(new PhotoDescriptionResponse(
-                    photoDescription.getId(),
-                    photoDescription.getPhotoId(),
-                    photoDescription.getDescription(),
-                    photoDescription.getDate(),
-                    photoDescription.getCountry(),
-                    photoDescription.getRotateAngle()));
+            return ResponseEntity.ok(new PhotoDataResponse(
+                    photoData.getId(),
+                    photoData.getPhotoId(),
+                    photoData.getDescription(),
+                    photoData.getDate(),
+                    photoData.getCountry(),
+                    photoData.getRotateAngle()));
         }
     }
     @PutMapping("/{photoId}/description")
     @PreAuthorize("#login == authentication.principal.username")
-    public ResponseEntity<?> updatePhotoDescription(
+    public ResponseEntity<?> updatePhotoDataDescription(
             @PathVariable String login,
             @PathVariable String photoId,
             @RequestParam("description") String description) {
 
 
-        TravelJournal.model.photo.PhotoDescription updatedPhotoDescription = photoService.updateDescription(photoId, description);
+        PhotoData updatedPhotoData = photoService.updateDescription(photoId, description);
 
-        if(updatedPhotoDescription.getLongitude() != null && updatedPhotoDescription.getLatitude() !=null) {
+        if(updatedPhotoData.getLongitude() != null && updatedPhotoData.getLatitude() !=null) {
 
-            return ResponseEntity.ok(new PhotoDescriptionResponse(
-                    updatedPhotoDescription.getId(),
-                    updatedPhotoDescription.getPhotoId(),
-                    updatedPhotoDescription.getDescription(),
-                    updatedPhotoDescription.getDate(),
-                    updatedPhotoDescription.getCountry(),
-                    updatedPhotoDescription.getLatitude(),
-                    updatedPhotoDescription.getLongitude(),
-                    updatedPhotoDescription.getRotateAngle()
+            return ResponseEntity.ok(new PhotoDataResponse(
+                    updatedPhotoData.getId(),
+                    updatedPhotoData.getPhotoId(),
+                    updatedPhotoData.getDescription(),
+                    updatedPhotoData.getDate(),
+                    updatedPhotoData.getCountry(),
+                    updatedPhotoData.getLatitude(),
+                    updatedPhotoData.getLongitude(),
+                    updatedPhotoData.getRotateAngle()
             ));
 
         } else {
-            return ResponseEntity.ok(new PhotoDescriptionResponse(
-                    updatedPhotoDescription.getId(),
-                    updatedPhotoDescription.getPhotoId(),
-                    updatedPhotoDescription.getDescription(),
-                    updatedPhotoDescription.getDate(),
-                    updatedPhotoDescription.getCountry(),
-                    updatedPhotoDescription.getRotateAngle()));
+            return ResponseEntity.ok(new PhotoDataResponse(
+                    updatedPhotoData.getId(),
+                    updatedPhotoData.getPhotoId(),
+                    updatedPhotoData.getDescription(),
+                    updatedPhotoData.getDate(),
+                    updatedPhotoData.getCountry(),
+                    updatedPhotoData.getRotateAngle()));
         }
     }
 
@@ -112,73 +113,73 @@ public class PhotoController {
         return ResponseEntity.ok(photo);
     }
 
-    @GetMapping("/{photoId}/description")
+    @GetMapping("/{photoId}/photodata")
     @PreAuthorize("#login == authentication.principal.username")
-    public ResponseEntity<?> getPhotoDescription(
+    public ResponseEntity<?> getPhotoData(
             @PathVariable String login,
             @PathVariable String photoId) throws IOException, GeneralSecurityException {
 
-        TravelJournal.model.photo.PhotoDescription photoDescription = photoService.getPhotoDescription(photoId);
+        PhotoData photoData = photoService.getPhotoData(photoId);
 
-        PhotoDescriptionResponse descriptionResponse = new PhotoDescriptionResponse();
+        PhotoDataResponse photoDataResponse = new PhotoDataResponse();
 
-        if (photoDescription.getLatitude() != null && photoDescription.getLongitude() != null) {
-            descriptionResponse
-                    .setDescription(photoDescription.getDescription())
-                    .setCountry(photoDescription.getCountry())
-                    .setDate(photoDescription.getDate())
-                    .setId(photoDescription.getId())
+        if (photoData.getLatitude() != null && photoData.getLongitude() != null) {
+            photoDataResponse
+                    .setDescription(photoData.getDescription())
+                    .setCountry(photoData.getCountry())
+                    .setDate(photoData.getDate())
+                    .setId(photoData.getId())
                     .setPhotoId(photoId)
-                    .setLatitude(photoDescription.getLatitude())
-                    .setLongitude(photoDescription.getLongitude());
+                    .setLatitude(photoData.getLatitude())
+                    .setLongitude(photoData.getLongitude());
         } else {
-            descriptionResponse
-                    .setDescription(photoDescription.getDescription())
-                    .setCountry(photoDescription.getCountry())
-                    .setDate(photoDescription.getDate())
-                    .setId(photoDescription.getId())
+            photoDataResponse
+                    .setDescription(photoData.getDescription())
+                    .setCountry(photoData.getCountry())
+                    .setDate(photoData.getDate())
+                    .setId(photoData.getId())
                     .setPhotoId(photoId);
         }
         Link photoLink = linkTo(methodOn(PhotoController.class)
                 .getPhoto(login, photoId))
                 .withRel("photo");
         Link selfLink = linkTo(methodOn(PhotoController.class)
-                .getPhotoDescription(login,photoId))
+                .getPhotoData(login,photoId))
                 .withSelfRel();
 
-        descriptionResponse.add(photoLink);
-        descriptionResponse.add(selfLink);
+        photoDataResponse.add(photoLink);
+        photoDataResponse.add(selfLink);
 
-        return ResponseEntity.ok(descriptionResponse);
+        return ResponseEntity.ok(photoDataResponse);
     }
 
-    @GetMapping("/description")
-    public ResponseEntity<?> getAllPhotoDescriptions(@PathVariable String login,
-                                                     @RequestParam(defaultValue = "0") int page,
-                                                     @RequestParam(defaultValue = "3") int size) throws IOException, GeneralSecurityException {
+    @GetMapping("/photodata")
+    public ResponseEntity<?> getAllPhotoData(@PathVariable String login,
+                                             @RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "3") int size) throws IOException, GeneralSecurityException {
 
-        Page<PhotoDescriptionResponse> pagedDescriptions = photoService.getUserPhotoDescriptions(login, page, size);
+        Page<PhotoDataResponse> pagedPhotoDataResponse = photoService.getUserPhotoData(login, page, size);
 
-        List<PhotoDescriptionResponse> descriptions = pagedDescriptions.getContent();
-        for (PhotoDescriptionResponse description: descriptions) {
+        List<PhotoDataResponse> listPhotoDataResponse = pagedPhotoDataResponse.getContent();
+        for (PhotoDataResponse photoDataResponse: listPhotoDataResponse) {
             Link link = linkTo(methodOn(PhotoController.class)
-                    .getPhotoDescription(login, description.getPhotoId()))
+                    .getPhotoData(login, photoDataResponse.getPhotoId()))
                     .withSelfRel();
 
             Link photoLink = linkTo(methodOn(PhotoController.class)
-                    .getPhoto(login,description.getPhotoId()))
+                    .getPhoto(login,photoDataResponse.getPhotoId()))
                     .withRel("photo");
-            description.add(link);
-            description.add(photoLink);
+            photoDataResponse.add(link);
+            photoDataResponse.add(photoLink);
         }
 
         Map<String, Object> response = new HashMap<>();
-        response.put("descriptions", descriptions);
-        response.put("currentPage", pagedDescriptions.getNumber());
-        response.put("totalItems", pagedDescriptions.getTotalElements());
-        response.put("totalPages", pagedDescriptions.getTotalPages());
+        response.put("photoData", listPhotoDataResponse);
+        response.put("currentPage", pagedPhotoDataResponse.getNumber());
+        response.put("totalItems", pagedPhotoDataResponse.getTotalElements());
+        response.put("totalPages", pagedPhotoDataResponse.getTotalPages());
 
-        if(descriptions.isEmpty()) {
+        if(listPhotoDataResponse.isEmpty()) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         } else {
             return ResponseEntity.ok(response);

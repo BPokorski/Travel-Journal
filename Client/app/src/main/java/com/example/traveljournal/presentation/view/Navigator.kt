@@ -82,7 +82,6 @@ class Navigator {
 
         ) {
             activity?.supportFragmentManager?.beginTransaction()?.run {
-//                setCustomAnimations(R.anim.fade_in, 0, 0, R.anim.fade_out)
                 replace(R.id.root_container, fragment)
                 commit()
             }

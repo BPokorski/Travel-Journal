@@ -1,6 +1,5 @@
 package com.example.traveljournal.utils
 
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.data.geojson.GeoJsonFeature
@@ -32,5 +31,4 @@ class MapUtils {
         var boundingBox: LatLngBounds = builder.build()
         return boundingBox
     }
-
 }

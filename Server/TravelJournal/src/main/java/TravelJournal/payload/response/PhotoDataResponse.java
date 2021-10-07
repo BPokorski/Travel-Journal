@@ -19,7 +19,7 @@ import org.springframework.hateoas.server.core.Relation;
 @NoArgsConstructor
 @Accessors(chain = true)
 @Relation(collectionRelation = "descriptions")
-public class PhotoDescriptionResponse extends RepresentationModel<PhotoDescriptionResponse> {
+public class PhotoDataResponse extends RepresentationModel<PhotoDataResponse> {
     private String id;
     private String photoId;
     private String description;
@@ -30,7 +30,7 @@ public class PhotoDescriptionResponse extends RepresentationModel<PhotoDescripti
     private int rotateAngle;
 
 
-    public PhotoDescriptionResponse(String id, String photoId, String description, String date, String country, int rotateAngle) {
+    public PhotoDataResponse(String id, String photoId, String description, String date, String country, int rotateAngle) {
         this.id = id;
         this.photoId = photoId;
         this.description = description;

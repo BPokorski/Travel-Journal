@@ -3,7 +3,7 @@ package com.example.traveljournal.data
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.traveljournal.R
-import com.example.traveljournal.data.model.response.PhotoDescriptionResponse
+import com.example.traveljournal.data.model.response.PhotoDataResponse
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -15,7 +15,7 @@ class SessionManager(context:Context) {
         const val USER_LOGIN = "login"
         const val COUNTRY_NAME = "country_name"
         const val ADDRESS = "address"
-        const val PHOTO_DESCRIPTION = "photo_description"
+        const val PHOTO_DATA = "photo_data"
         const val SUB_ADMIN_AREA = "sub_admin_area"
     }
 
@@ -29,8 +29,8 @@ class SessionManager(context:Context) {
         val editor = prefs.edit()
         editor.putString(USER_LOGIN, login)
         editor.apply()
-
     }
+
     fun saveCountryName(name: String) {
         val editor = prefs.edit()
         editor.putString(COUNTRY_NAME, name)
@@ -43,11 +43,11 @@ class SessionManager(context:Context) {
         editor.apply()
     }
 
-    fun savePhotoDescription(photoDescription: PhotoDescriptionResponse) {
+    fun savePhotoData(photoData: PhotoDataResponse) {
         val  editor = prefs.edit()
         var gson = Gson()
-        var json:String = gson.toJson(photoDescription)
-        editor.putString(PHOTO_DESCRIPTION, json)
+        var json:String = gson.toJson(photoData)
+        editor.putString(PHOTO_DATA, json)
         editor.apply()
     }
     fun savePlaceAddress(address: String) {
@@ -64,10 +64,10 @@ class SessionManager(context:Context) {
         return prefs.getString(USER_LOGIN, null)
     }
 
-    fun fetchPhotoDescription():PhotoDescriptionResponse? {
+    fun fetchPhotoData():PhotoDataResponse? {
         var gson = Gson()
-        var json: String? = prefs.getString(PHOTO_DESCRIPTION, "")
-        return gson.fromJson(json, object : TypeToken<PhotoDescriptionResponse>() {}.type)
+        var json: String? = prefs.getString(PHOTO_DATA, "")
+        return gson.fromJson(json, object : TypeToken<PhotoDataResponse>() {}.type)
     }
 
     fun fetchCountryName():String? {

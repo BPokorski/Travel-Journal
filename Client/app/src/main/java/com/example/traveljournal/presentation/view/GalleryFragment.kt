@@ -12,18 +12,18 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.traveljournal.R
-import com.example.traveljournal.data.model.response.PhotoDescriptionResponse
+import com.example.traveljournal.data.model.response.PhotoDataResponse
 import com.example.traveljournal.presentation.view.recyclerView.CardClickListener
 import com.example.traveljournal.presentation.viewModel.GalleryViewModel
 import com.example.traveljournal.presentation.view.recyclerView.CustomItemSpaceDecoration
-import com.example.traveljournal.presentation.view.recyclerView.PhotoDescriptionAdapter
+import com.example.traveljournal.presentation.view.recyclerView.PhotoDataAdapter
 
 class GalleryFragment:Fragment(), CardClickListener {
     private lateinit var recyclerView:RecyclerView
     private lateinit var fragmentContext: Context
     private val galleryViewModel:GalleryViewModel by viewModels()
 
-    private lateinit var photoDescriptionAdapter: PhotoDescriptionAdapter
+    private lateinit var photoDataAdapter: PhotoDataAdapter
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -36,28 +36,24 @@ class GalleryFragment:Fragment(), CardClickListener {
     override fun onViewCreated(
             view: View,
             savedInstanceState: Bundle?
-
     ) {
         super.onViewCreated(view, savedInstanceState)
-
         galleryViewModel.init(fragmentContext)
         recyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.layoutManager = GridLayoutManager(fragmentContext, 1, RecyclerView.VERTICAL, false)
-        photoDescriptionAdapter = PhotoDescriptionAdapter(fragmentContext)
+        photoDataAdapter = PhotoDataAdapter(fragmentContext)
 
-        galleryViewModel.photoDescriptionPagedList.observe(viewLifecycleOwner, Observer {
-            photoDescriptionAdapter.submitList(it)
+        galleryViewModel.photoDataPagedList.observe(viewLifecycleOwner, Observer {
+            photoDataAdapter.submitList(it)
         })
         recyclerView.addItemDecoration(CustomItemSpaceDecoration(50))
-        recyclerView.adapter = photoDescriptionAdapter
-        photoDescriptionAdapter.setOnCardClickListener(this)
+        recyclerView.adapter = photoDataAdapter
+        photoDataAdapter.setOnCardClickListener(this)
     }
 
-    override fun onCardClickListener(photoDescription: PhotoDescriptionResponse?, position: Int) {
+    override fun onCardClickListener(photoData: PhotoDataResponse?, position: Int) {
         Toast.makeText(fragmentContext, "Photo choosen", Toast.LENGTH_SHORT).show()
-        galleryViewModel.saveAddressInfo(photoDescription)
+        galleryViewModel.saveAddressInfo(photoData)
         Navigator.navigateToPhoto(activity)
     }
-
-
 }

@@ -8,7 +8,7 @@ import com.example.traveljournal.data.model.request.SignUpRequest
 import com.example.traveljournal.data.model.response.*
 import com.example.traveljournal.data.retrofit.ServiceGenerator
 import com.example.traveljournal.data.retrofit.TravelJournalService
-import com.example.traveljournal.utils.StringUtills
+import com.example.traveljournal.utils.StringUtils
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import okhttp3.MultipartBody
@@ -17,10 +17,9 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class Repository(context: Context) {
-
     private var travelJournalService: TravelJournalService = ServiceGenerator
             .createService(TravelJournalService::class.java,context)
-    private val stringUtils: StringUtills = StringUtills()
+    private val stringUtils: StringUtils = StringUtils()
 
     fun signIn(login: String, password: String): LiveData<Resource<JwtResponse?>?> {
         var jwtResponse: MutableLiveData<Resource<JwtResponse?>?> = MutableLiveData()
@@ -28,12 +27,12 @@ class Repository(context: Context) {
         loginRequest.login = login
         loginRequest.password = password
         var call: Call<JwtResponse> = travelJournalService.authenticateUser(loginRequest)
+
         call.enqueue(object : Callback<JwtResponse?> {
             override fun onResponse(call: Call<JwtResponse?>, response: Response<JwtResponse?>) {
                 if (response.isSuccessful) {
                     var body = response.body()
                     jwtResponse.value = Resource.success(body)
-
                 } else {
                     if (response.code() == 400) {
                         var gson = Gson()
@@ -42,24 +41,18 @@ class Repository(context: Context) {
                             object : TypeToken<ErrorResponse>() {}.type
                         )
                         jwtResponse.value = Resource.error(errorResponse.message, null)
-
-
                     } else if (response.code() == 401) {
-
                         jwtResponse.value = Resource.error("Invalid user or password", null)
                     }
                 }
             }
 
             override fun onFailure(call: Call<JwtResponse?>, t: Throwable) {
-//                Toast.makeText(context, "Internet issues. Try again", Toast.LENGTH_SHORT).show()
                 jwtResponse.value = Resource.error(t.message, null)
-//                t.printStackTrace();
             }
         })
         return jwtResponse
     }
-
 
     fun signUp(login: String, email: String, password: String): MutableLiveData<Resource<MessageResponse?>> {
         var messageResponse: MutableLiveData<Resource<MessageResponse?>> = MutableLiveData()
@@ -81,26 +74,17 @@ class Repository(context: Context) {
                     messageResponse.value = Resource.success(body)
                 } else {
                     if (response.code() == 400) {
-
                         var gson = Gson()
                         var errorResponse = gson.fromJson<ErrorResponse>(
                             response.errorBody()?.string(),
                             object : TypeToken<ErrorResponse>() {}.type
                         )
-
-
-                        System.out.println(errorResponse.message)
                         messageResponse.value = Resource.error(errorResponse.message, null)
-//                        System.out.println(gson.fromJson(response.errorBody()?.string(), ErrorResponse()))
                     }
-
-                    System.out.println(response.code())
                 }
-
             }
 
             override fun onFailure(call: Call<MessageResponse?>, t: Throwable) {
-
                 messageResponse.value = Resource.error(t.message, null)
             }
         })
@@ -121,7 +105,6 @@ class Repository(context: Context) {
 
                 } else {
                     countries.value = Resource.error("Server problems. Try Again", null)
-                    System.out.println(response.code())
                 }
             }
 
@@ -133,135 +116,115 @@ class Repository(context: Context) {
         return countries
     }
 
-    fun getCountryPhotoDescriptions(login: String, country: String): MutableLiveData<Resource<List<PhotoDescriptionResponse>?>> {
-        var descriptions: MutableLiveData<Resource<List<PhotoDescriptionResponse>?>> =  MutableLiveData()
+    fun getCountryPhotoData(login: String, country: String): MutableLiveData<Resource<List<PhotoDataResponse>?>> {
+        var photoData: MutableLiveData<Resource<List<PhotoDataResponse>?>> =  MutableLiveData()
         var lowercaseCountry = stringUtils.connectorChanger(
             stringUtils.toLowerCaseConverter(country),
             " ",
             "-"
         )
-        val call: Call<List<PhotoDescriptionResponse>?>? = travelJournalService.getDescriptions(
+        val call: Call<List<PhotoDataResponse>?>? = travelJournalService.getPhotoData(
             login,
             lowercaseCountry
         )
 
-        call?.enqueue(object : Callback<List<PhotoDescriptionResponse>?> {
+        call?.enqueue(object : Callback<List<PhotoDataResponse>?> {
             override fun onResponse(
-                call: Call<List<PhotoDescriptionResponse>?>,
-                response: Response<List<PhotoDescriptionResponse>?>
+                    call: Call<List<PhotoDataResponse>?>,
+                    response: Response<List<PhotoDataResponse>?>
             ) {
                 if (response.body() != null) {
                     var body = response.body()
-                    descriptions.value = Resource.success(body)
+                    photoData.value = Resource.success(body)
 
                 } else {
-                    descriptions.value = Resource.error("Server problems. Try Again", null)
-                    System.out.println(response.code())
-                    System.out.println(response.code())
+                    photoData.value = Resource.error("Server problems. Try Again", null)
                 }
             }
 
-            override fun onFailure(call: Call<List<PhotoDescriptionResponse>?>, t: Throwable) {
-                descriptions.value = Resource.error("Server problems. Try Again", null)
-//                System.out.println(response.code())
+            override fun onFailure(call: Call<List<PhotoDataResponse>?>, t: Throwable) {
+                photoData.value = Resource.error("Server problems. Try Again", null)
                 t.printStackTrace();
             }
         })
-        return descriptions
+        return photoData
     }
 
-    fun getOceanPhotoDescriptions(login: String): MutableLiveData<Resource<List<PhotoDescriptionResponse>?>> {
-        var descriptions: MutableLiveData<Resource<List<PhotoDescriptionResponse>?>> =  MutableLiveData()
+    fun getOceanPhotoData(login: String): MutableLiveData<Resource<List<PhotoDataResponse>?>> {
+        var photoData: MutableLiveData<Resource<List<PhotoDataResponse>?>> =  MutableLiveData()
 
-        val call: Call<List<PhotoDescriptionResponse>?>? = travelJournalService.getOceanPhotoDescriptions(
+        val call: Call<List<PhotoDataResponse>?>? = travelJournalService.getOceanPhotoData(
                 login
         )
 
-        call?.enqueue(object : Callback<List<PhotoDescriptionResponse>?> {
+        call?.enqueue(object : Callback<List<PhotoDataResponse>?> {
             override fun onResponse(
-                    call: Call<List<PhotoDescriptionResponse>?>,
-                    response: Response<List<PhotoDescriptionResponse>?>
+                    call: Call<List<PhotoDataResponse>?>,
+                    response: Response<List<PhotoDataResponse>?>
             ) {
                 if (response.isSuccessful) {
                     var body = response.body()
-                    System.out.println("Got ocean descriptions")
-                    System.out.println(body?.size)
-                    descriptions.value = Resource.success(body)
-
+                    photoData.value = Resource.success(body)
                 } else {
-                    descriptions.value = Resource.error(response.message(), null)
+                    photoData.value = Resource.error(response.message(), null)
                 }
             }
 
-            override fun onFailure(call: Call<List<PhotoDescriptionResponse>?>, t: Throwable) {
-                descriptions.value = Resource.error("Server problems. Try Again", null)
-//                System.out.println(response.code())
+            override fun onFailure(call: Call<List<PhotoDataResponse>?>, t: Throwable) {
+                photoData.value = Resource.error("Server problems. Try Again", null)
                 t.printStackTrace();
             }
         })
-        System.out.println("Got data")
-        return descriptions
+        return photoData
     }
 
-    fun addPhoto(login: String?, multipartBody: MultipartBody.Part): MutableLiveData<Resource<PhotoDescriptionResponse?>?> {
-
-        var photoDescription: MutableLiveData<Resource<PhotoDescriptionResponse?>?> = MutableLiveData()
-        val call: Call<PhotoDescriptionResponse> = travelJournalService.addPhoto(
+    fun addPhoto(login: String?, multipartBody: MultipartBody.Part): MutableLiveData<Resource<PhotoDataResponse?>?> {
+        var photoData: MutableLiveData<Resource<PhotoDataResponse?>?> = MutableLiveData()
+        val call: Call<PhotoDataResponse> = travelJournalService.addPhoto(
             login,
             multipartBody
         )
 
-        call.enqueue(object : Callback<PhotoDescriptionResponse?> {
+        call.enqueue(object : Callback<PhotoDataResponse?> {
             override fun onResponse(
-                call: Call<PhotoDescriptionResponse?>,
-                response: Response<PhotoDescriptionResponse?>
+                    call: Call<PhotoDataResponse?>,
+                    response: Response<PhotoDataResponse?>
             ) {
                 if (response.isSuccessful) {
                     var body = response.body()
-                    photoDescription.value = Resource.success(body)
+                    photoData.value = Resource.success(body)
                 } else {
-                    System.out.println("EMPTY RESOURCE")
-                    photoDescription.value = Resource.error("Server problems. Try again", null)
+                    photoData.value = Resource.error("Server problems. Try again", null)
                 }
-
             }
-
-            override fun onFailure(call: Call<PhotoDescriptionResponse?>, t: Throwable) {
-
-                System.out.println("SERWER?!")
-                System.out.println(t.message)
-                System.out.println(t.cause)
-                photoDescription.value = Resource.error(t.message, null)
+            override fun onFailure(call: Call<PhotoDataResponse?>, t: Throwable) {
+                photoData.value = Resource.error(t.message, null)
             }
         })
-        return photoDescription
+        return photoData
     }
 
-    fun updateDescription(login: String?, photoId: String?, description: String?): MutableLiveData<Resource<PhotoDescriptionResponse?>?> {
-        var photoDescription: MutableLiveData<Resource<PhotoDescriptionResponse?>?> = MutableLiveData()
-        val call: Call<PhotoDescriptionResponse> = travelJournalService.updateDescription(login, photoId, description)
+    fun updateDescription(login: String?, photoId: String?, description: String?): MutableLiveData<Resource<PhotoDataResponse?>?> {
+        var photoData: MutableLiveData<Resource<PhotoDataResponse?>?> = MutableLiveData()
+        val call: Call<PhotoDataResponse> = travelJournalService.updateDescription(login, photoId, description)
 
-        call.enqueue(object : Callback<PhotoDescriptionResponse?> {
+        call.enqueue(object : Callback<PhotoDataResponse?> {
             override fun onResponse(
-                    call: Call<PhotoDescriptionResponse?>,
-                    response: Response<PhotoDescriptionResponse?>
+                    call: Call<PhotoDataResponse?>,
+                    response: Response<PhotoDataResponse?>
             ) {
                 if (response.isSuccessful) {
                     var body = response.body()
-                    photoDescription.value = Resource.success(body)
+                    photoData.value = Resource.success(body)
                 } else {
-                    photoDescription.value = Resource.error("Server problems. Try again", null)
+                    photoData.value = Resource.error("Server problems. Try again", null)
                 }
-
             }
 
-            override fun onFailure(call: Call<PhotoDescriptionResponse?>, t: Throwable) {
-
-                System.out.println(t.message)
-                System.out.println(t.cause)
-                photoDescription.value = Resource.error(t.message, null)
+            override fun onFailure(call: Call<PhotoDataResponse?>, t: Throwable) {
+                photoData.value = Resource.error(t.message, null)
             }
         })
-        return photoDescription
+        return photoData
     }
 }

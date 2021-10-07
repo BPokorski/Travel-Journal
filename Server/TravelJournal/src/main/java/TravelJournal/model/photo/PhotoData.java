@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.hateoas.server.core.Relation;
 
 /**
- * Model of photo description.
+ * Model of photo data.
  * Contains data about owner, photo id, own description,
  * angle of rotation(to achieve effect in display of hand-glued photo),
  * date of taking a photo and if contains location data e.g. country and coordinates.
@@ -16,10 +16,10 @@ import org.springframework.hateoas.server.core.Relation;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-@Document(collection = "PhotoDescription")
+@Document(collection = "PhotoData")
 @Accessors(chain = true)
-@Relation(collectionRelation = "photo descriptions")
-public class PhotoDescription {
+@Relation(collectionRelation = "photo data")
+public class PhotoData {
     private String id;
 
     private String owner;

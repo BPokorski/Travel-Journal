@@ -2,7 +2,6 @@ package com.example.traveljournal.presentation.view
 
 import android.content.Context
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -40,7 +38,6 @@ class DescriptionFragment:Fragment() {
     override fun onViewCreated(
             view: View,
             savedInstanceState: Bundle?
-
     ) {
         super.onViewCreated(view, savedInstanceState)
         photoButton = view.findViewById(R.id.photo_page_button)
@@ -49,14 +46,11 @@ class DescriptionFragment:Fragment() {
         editDescription = view.findViewById(R.id.edit_description)
 
         descriptionViewModel.init(fragmentContext)
-        var photoDescription = sessionManager.fetchPhotoDescription()
+        var photoData = sessionManager.fetchPhotoData()
 
-        if (!photoDescription?.description.isNullOrEmpty()) {
-            description.text = photoDescription?.description
+        if (!photoData?.description.isNullOrEmpty()) {
+            description.text = photoData?.description
         }
-
-
-
         description.setOnClickListener {
             description.visibility = View.INVISIBLE
             description.isClickable = false
@@ -70,12 +64,12 @@ class DescriptionFragment:Fragment() {
             var updatedDescription = editDescription.text.toString()
 
             var login = sessionManager.fetchLogin()
-            var photoId = photoDescription?.photoId
+            var photoId = photoData?.photoId
 
             descriptionViewModel.updateDescription(login, photoId, updatedDescription)?.observe(viewLifecycleOwner, Observer {
                 when(it?.status) {
                     Resource.Status.SUCCESS -> {
-                        it.data?.let { it1 -> sessionManager.savePhotoDescription(it1) }
+                        it.data?.let { it1 -> sessionManager.savePhotoData(it1) }
 
                         description.text = it.data?.description
                         editDescription.isClickable = false
@@ -91,7 +85,6 @@ class DescriptionFragment:Fragment() {
 
                     }
                     Resource.Status.ERROR -> {
-
                         Toast.makeText(fragmentContext, it.message, Toast.LENGTH_SHORT).show()
                     }
                 }

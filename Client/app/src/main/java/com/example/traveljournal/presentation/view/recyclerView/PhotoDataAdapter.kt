@@ -1,6 +1,5 @@
 package com.example.traveljournal.presentation.view.recyclerView
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.view.ViewGroup
@@ -15,27 +14,25 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.traveljournal.R
 import com.example.traveljournal.data.GlideApp
 import com.example.traveljournal.data.SessionManager
-import com.example.traveljournal.data.model.response.PhotoDescriptionResponse
-import com.example.traveljournal.presentation.view.Navigator
-import com.example.traveljournal.utils.DescriptionUtils
+import com.example.traveljournal.data.model.response.PhotoDataResponse
+import com.example.traveljournal.utils.PhotoDataUtils
 
-class PhotoDescriptionAdapter(private val context: Context):
-        PagedListAdapter<PhotoDescriptionResponse,RecyclerView.ViewHolder>(PhotoDescriptionDiffCallback) {
-
-
+class PhotoDataAdapter(private val context: Context):
+        PagedListAdapter<PhotoDataResponse,RecyclerView.ViewHolder>(PhotoDataDiffCallback) {
     private var sessionManager = SessionManager(context)
-    private var descriptionUtils = DescriptionUtils(context)
+    private var photoDataUtils = PhotoDataUtils(context)
 
     var cardClickListener:CardClickListener? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int):RecyclerView.ViewHolder {
-        return PhotoDescriptionViewHolder.create(parent)
+        return PhotoDataViewHolder.create(parent)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
        var item = getItem(position)
 
         if (item != null) {
-            (holder as PhotoDescriptionViewHolder).cardView.rotation = item.rotateAngle?.toFloat()!!
+            (holder as PhotoDataViewHolder).cardView.rotation = item.rotateAngle?.toFloat()!!
             holder.galleryTitle.text = item.country
 
             var circularProgressDrawable = CircularProgressDrawable(context)
@@ -64,19 +61,21 @@ class PhotoDescriptionAdapter(private val context: Context):
         }
         holder.itemView.setOnClickListener {
             cardClickListener?.onCardClickListener(item, position)
-            descriptionUtils.saveAddressInfo(item)
+            photoDataUtils.saveAddressInfo(item)
         }
     }
+
     fun setOnCardClickListener(cardClickListener: CardClickListener) {
         this.cardClickListener = cardClickListener
     }
+
     companion object {
-        val PhotoDescriptionDiffCallback = object: DiffUtil.ItemCallback<PhotoDescriptionResponse>() {
-            override fun areItemsTheSame(oldItem: PhotoDescriptionResponse, newItem: PhotoDescriptionResponse): Boolean {
+        val PhotoDataDiffCallback = object: DiffUtil.ItemCallback<PhotoDataResponse>() {
+            override fun areItemsTheSame(oldItem: PhotoDataResponse, newItem: PhotoDataResponse): Boolean {
                 return oldItem.photoId == newItem.photoId
             }
 
-            override fun areContentsTheSame(oldItem: PhotoDescriptionResponse, newItem: PhotoDescriptionResponse): Boolean {
+            override fun areContentsTheSame(oldItem: PhotoDataResponse, newItem: PhotoDataResponse): Boolean {
                 return oldItem.equals(newItem)
             }
         }
