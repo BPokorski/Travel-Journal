@@ -38,7 +38,9 @@ public class PhotoController {
 
         File photo = multipartToFileConverter.convert(image);
 
-        TravelJournal.model.photo.PhotoDescription photoDescription = photoService.addPhoto(photo, login);
+        // Application folder is root folder for main application
+        String appFolderId = photoService.getFolder("Application", "root").getId();
+        TravelJournal.model.photo.PhotoDescription photoDescription = photoService.addPhoto(photo, login, appFolderId);
 
         photo.delete();
         if(photoDescription.getLongitude() != null && photoDescription.getLatitude() !=null) {
@@ -114,7 +116,6 @@ public class PhotoController {
     @PreAuthorize("#login == authentication.principal.username")
     public ResponseEntity<?> getPhotoDescription(
             @PathVariable String login,
-
             @PathVariable String photoId) throws IOException, GeneralSecurityException {
 
         TravelJournal.model.photo.PhotoDescription photoDescription = photoService.getPhotoDescription(photoId);
@@ -149,7 +150,6 @@ public class PhotoController {
         descriptionResponse.add(selfLink);
 
         return ResponseEntity.ok(descriptionResponse);
-
     }
 
     @GetMapping("/description")
@@ -185,4 +185,12 @@ public class PhotoController {
         }
     }
 
+    @DeleteMapping("/{photoId}")
+    public ResponseEntity<?> deletePhoto(
+            @PathVariable String login,
+            @PathVariable String photoId) throws GeneralSecurityException, IOException {
+
+        photoService.deleteFile(photoId);
+        return ResponseEntity.ok("Photo deleted successfully");
+    }
 }

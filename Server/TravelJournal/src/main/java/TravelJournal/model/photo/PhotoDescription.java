@@ -1,9 +1,6 @@
 package TravelJournal.model.photo;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.hateoas.server.core.Relation;
@@ -18,6 +15,7 @@ import org.springframework.hateoas.server.core.Relation;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 @Document(collection = "PhotoDescription")
 @Accessors(chain = true)
 @Relation(collectionRelation = "photo descriptions")

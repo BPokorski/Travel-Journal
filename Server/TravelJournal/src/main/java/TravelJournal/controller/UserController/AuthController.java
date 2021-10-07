@@ -30,7 +30,7 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws IOException, GeneralSecurityException {
 
-        return userService.signUpUser(signUpRequest);
+        return userService.signUpUser(signUpRequest, "application");
     }
 
     @PutMapping("/signout")

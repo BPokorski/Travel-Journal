@@ -44,19 +44,13 @@ public class PhotoServiceImplementation implements PhotoService{
     @Autowired
     private PhotoEXIF photoEXIF;
 
-//    private final RandomIntGenerator randomIntGenerator = new RandomIntGenerator();
     /**
-     * Add new photo for given user.
-     * @param photo - Image to be added.
-     * @param user - User which want to add photo.
-     * @return PhotoDescription of newly created resource.
-     * @throws GeneralSecurityException When authentication fails to Google Drive API.
-     * @throws IOException When something goes wrong with Google Drive.
+     * {@inheritDoc}
      */
     @Override
-    public TravelJournal.model.photo.PhotoDescription addPhoto(File photo, String user) throws GeneralSecurityException, IOException {
-        
-        String countryName = "Ocean";
+    public PhotoDescription addPhoto(File photo, String user, String parentId) throws GeneralSecurityException, IOException {
+
+        String countryName;
 
         GeoLocation geoLocation = photoEXIF.getPhotoLocation(photo);
         String date = photoEXIF.getPhotoDate(photo);
@@ -67,7 +61,8 @@ public class PhotoServiceImplementation implements PhotoService{
             countryName = "Other"; // Photos without location
         }
 
-        com.google.api.services.drive.model.File userFolder = googleDriveRepository.searchFolder(user, "root");
+//        String applicationFolderId = googleDriveRepository.searchFolder("application", "root").getId();
+        com.google.api.services.drive.model.File userFolder = googleDriveRepository.searchFolder(user, parentId);
         com.google.api.services.drive.model.File countryFolder = googleDriveRepository.searchFolder(countryName, userFolder.getId());
 
         // Folder of given country was not found, so it needs to be created.
@@ -100,10 +95,7 @@ public class PhotoServiceImplementation implements PhotoService{
     }
 
     /**
-     * Get Descriptions(with ID of photo) in single country for given user.
-     * @param user - Authenticated user.
-     * @param country - Name of country to get available description.
-     * @return List of PhotoDescription.
+     * {@inheritDoc}
      */
     @Override
     public List<PhotoDescription> getPhotosInCountry(String user, String country) {
@@ -111,10 +103,7 @@ public class PhotoServiceImplementation implements PhotoService{
     }
 
     /**
-     * Update Description of photo.
-     * @param photoId - Id of photo to change description.
-     * @param description - New description.
-     * @return Updated PhotoDescription.
+     * {@inheritDoc}
      */
     @Override
     public PhotoDescription updateDescription(String photoId, String description) {
@@ -124,11 +113,7 @@ public class PhotoServiceImplementation implements PhotoService{
     }
 
     /**
-     * Get Image with given Id.
-     * @param photoId - Id of photo to be displayed.
-     * @return Representation of image in bytes.
-     * @throws GeneralSecurityException when authentication fails to Google Drive API.
-     * @throws IOException when something goes wrong with Google Drive.
+     * {@inheritDoc}
      */
     @Override
     public byte[] getPhoto(String photoId) throws IOException, GeneralSecurityException {
@@ -136,9 +121,7 @@ public class PhotoServiceImplementation implements PhotoService{
     }
 
     /**
-     * Get single photoDescription with given id.
-     * @param photoId - Id of Photo.
-     * @return PhotoDescription.
+     * {@inheritDoc}
      */
     @Override
     public PhotoDescription getPhotoDescription(String photoId) {
@@ -146,12 +129,7 @@ public class PhotoServiceImplementation implements PhotoService{
     }
 
     /**
-     * Get single folder from Google Cloud Storage with given name and id of its parent.
-     * @param folderName - Name of folder.
-     * @param parentId - Id of parent folder. "root" if there is no-one.
-     * @throws GeneralSecurityException When authentication fails to Google Drive API.
-     * @throws IOException When something goes wrong with Google Drive.
-     * @return Google Drive Folder
+     * {@inheritDoc}
      */
     @Override
     public com.google.api.services.drive.model.File getFolder(String folderName, String parentId) throws GeneralSecurityException, IOException {
@@ -159,12 +137,7 @@ public class PhotoServiceImplementation implements PhotoService{
     }
 
     /**
-     * Create folder in Google Cloud Storage with given name and id of its parent.
-     * @param folderName - Name of folder to create.
-     * @param parentId - Id of parent folder. "root" if there is no-one.
-     * @return newly created Google Drive Folder.
-     * @throws GeneralSecurityException - When authentication fails to Google Drive API.
-     * @throws IOException - When something goes wrong with Google Drive.
+     * {@inheritDoc}
      */
     @Override
     public void createFolder(String folderName, String parentId) throws GeneralSecurityException, IOException {
@@ -172,11 +145,7 @@ public class PhotoServiceImplementation implements PhotoService{
     }
 
     /**
-     * Get pagable photo descriptions of user.
-     * @param user - Owner(login) of photo descriptions.
-     * @param page - Number of page.
-     * @param pageSize - Size of page.
-     * @return Map containing photo descriptions, current page number, total number of pages, total number of items.
+     * {@inheritDoc}
      */
     @Override
     public Page<PhotoDescriptionResponse> getUserPhotoDescriptions(String user, int page, int pageSize) {
@@ -186,9 +155,7 @@ public class PhotoServiceImplementation implements PhotoService{
     }
 
     /**
-     * Get names of available countries for given user.
-     * @param user - User to check available countries.
-     * @return Set with names of countries.
+     * {@inheritDoc}
      */
     @Override
     public Set<String> getAvailableCountries(String user)  {
@@ -200,5 +167,27 @@ public class PhotoServiceImplementation implements PhotoService{
             countries.add(photoDescriptionResponse.getCountry());
         }
         return countries;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteFile(String fileId) throws GeneralSecurityException, IOException {
+        googleDriveRepository.deleteFile(fileId);
+        photoDescriptionRepository.deleteByPhotoId(fileId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteResources(String login, String applicationFolder) throws GeneralSecurityException, IOException {
+        photoDescriptionRepository.deleteByOwner(login);
+
+        String applicationFolderId = googleDriveRepository.searchFolder(applicationFolder, "root").getId();
+        String userFolderId = googleDriveRepository.searchFolder(login, applicationFolderId).getId();
+
+        googleDriveRepository.deleteFile(userFolderId);
     }
 }

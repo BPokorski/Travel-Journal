@@ -68,10 +68,7 @@ public class GoogleDriveImplementation implements GoogleDriveRepository {
     }
 
     /**
-     * Create new folder in given folder or root hierarchy.
-     * @param name - Name of folder.
-     * @param rootFolderId - Id of root folder to be created in, "root" if to create folder in top of hierarchy.
-     * @throws IOException If the credentials.json file cannot be found.
+     * {@inheritDoc}
      */
     public void createFolder(String name, String rootFolderId) throws IOException {
         File fileMetadata = new File();
@@ -86,12 +83,7 @@ public class GoogleDriveImplementation implements GoogleDriveRepository {
     }
 
     /**
-     * Add photo to given folder.
-     * @param rootFolderId - Id of folder in which new photo will be placed. "Root" if there isn't any folder.
-     * @param filePath - File containing image.
-     * @param photoName - Name of file created in Google Drive.
-     * @return newly created photo.
-     * @throws IOException If the credentials.json file cannot be found.
+     * {@inheritDoc}
      */
     public File addPhoto(String rootFolderId, java.io.File filePath, String photoName) throws IOException {
 
@@ -101,28 +93,21 @@ public class GoogleDriveImplementation implements GoogleDriveRepository {
 
         FileContent mediaContent = new FileContent("image/jpeg", filePath);
 
-        File file = service.files().create(fileMetadata, mediaContent)
+        return service.files().create(fileMetadata, mediaContent)
                 .setFields("id, parents")
                 .execute();
-        return file;
     }
 
     /**
-     * Search for specific folder.
-     * @param name - Name of folder to be found.
-     * @param parentId - Id of parent folder or "root" if there isn't any.
-     * @return Found folder or null if there is no such a folder.
-     * @throws IOException If the credentials.json file cannot be found.
+     * {@inheritDoc}
      */
     public File searchFolder(String name, String parentId) throws IOException {
-        String pageToken = null;
         FileList result = service.files().list()
                 .setQ(String.format("mimeType = 'application/vnd.google-apps.folder' and name= '%s' and trashed=false and '%s' in parents", name, parentId))
                 .setSpaces("drive")
                 .setFields("nextPageToken, files(id, name, parents)")
-                .setPageToken(pageToken)
+                .setPageToken(null)
                 .execute();
-
         if (result.getFiles().size() == 0) {
             return null;
         } else {
@@ -131,10 +116,7 @@ public class GoogleDriveImplementation implements GoogleDriveRepository {
     }
 
     /**
-     * Get photo with given id.
-     * @param photoId - Google Drive Id of photo.
-     * @return Byte array representation of image.
-     * @throws IOException If the credentials.json file cannot be found.
+     * {@inheritDoc}
      */
     public byte[] downloadPhoto(String photoId) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -143,19 +125,14 @@ public class GoogleDriveImplementation implements GoogleDriveRepository {
     }
 
     /**
-     * Delete photo with given id.
-     * @param fileId - Google Drive Id of photo.
-     * @throws IOException If the credentials.json file cannot be found.
+     * {@inheritDoc}
      */
     public void deleteFile(String fileId) throws IOException {
         service.files().delete(fileId).execute();
     }
 
     /**
-     *
-     * @return Instance of Google Drive Service
-     * @throws GeneralSecurityException When authentication fails.
-     * @throws IOException If the credentials.json file cannot be found.
+     * {@inheritDoc}
      */
     private Drive getDriveService() throws GeneralSecurityException, IOException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -163,5 +140,4 @@ public class GoogleDriveImplementation implements GoogleDriveRepository {
                 .setApplicationName(APPLICATION_NAME)
                 .build();
     }
-
 }

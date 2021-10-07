@@ -62,79 +62,81 @@ public class UserDetailsServiceImplementation implements UserDetailsService, Use
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public ResponseEntity<?> signUpUser(SignupRequest signUpRequest) throws GeneralSecurityException, IOException {
+    public ResponseEntity<?> signUpUser(SignupRequest signUpRequest, String applicationFolder) throws GeneralSecurityException, IOException {
+        ResponseEntity<?> result;
         if (userRepository.existsByLogin(signUpRequest.getLogin())) {
-            return ResponseEntity
+            result = ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
-        }
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity
+        } else if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+            result = ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
-        }
-        if(signUpRequest.getPassword().isEmpty()) {
-            return ResponseEntity
+        } else if (signUpRequest.getPassword().isEmpty()) {
+            result = ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Password cannot be empty"));
-        }
-        if(signUpRequest.getEmail().isEmpty()) {
-            return ResponseEntity
+        } else if (signUpRequest.getEmail().isEmpty()) {
+            result = ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: E-mail cannot be empty"));
-        }
-        if(signUpRequest.getLogin().isEmpty()) {
-            return ResponseEntity
+        } else if (signUpRequest.getLogin().isEmpty()) {
+            result = ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Login cannot be empty"));
-        }
-        // Create new user's account
-        User user = new User(signUpRequest.getLogin(),
-                signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()));
-
-        Set<String> strRoles = signUpRequest.getRoles();
-        Set<Role> roles = new HashSet<>();
-
-        if (strRoles == null) {
-            Role userRole = roleRepository.findByName(EnumRole.USER);
-            if (userRole ==null) {
-                throw new RuntimeException("Error: Role is not found");
-            }
-            roles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-
-                switch (role) {
-                    case "admin":
-                        Role adminRole = roleRepository.findByName(EnumRole.ADMIN);
-                        if (adminRole ==null) {
-                            throw new RuntimeException("Error: Role is not found");
-                        }
-                        roles.add(adminRole);
-
-                        break;
-
-                    default:
-                        Role userRole = roleRepository.findByName(EnumRole.USER);
-                        if (userRole ==null) {
-                            throw new RuntimeException("Error: Role is not found");
-                        }
-                        roles.add(userRole);
+        } else {// Create new user's account
+            User user = new User(signUpRequest.getLogin(),
+                    signUpRequest.getEmail(),
+                    encoder.encode(signUpRequest.getPassword()));
+            Set<String> strRoles = signUpRequest.getRoles();
+            Set<Role> roles = new HashSet<>();
+            if (strRoles == null) {
+                Role userRole = roleRepository.findByName(EnumRole.USER);
+                if (userRole == null) {
+                    throw new RuntimeException("Error: Role is not found");
                 }
-            });
-        }
-        File userFolder = photoService.getFolder(signUpRequest.getLogin(), "root");
-        if (userFolder == null) {
-            photoService.createFolder(signUpRequest.getLogin(), "root");
-        }
-        user.setRoles(roles);
-        userRepository.save(user);
+                roles.add(userRole);
+            } else {
+                strRoles.forEach(role -> {
 
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+                    switch (role) {
+                        case "admin":
+                            Role adminRole = roleRepository.findByName(EnumRole.ADMIN);
+                            if (adminRole == null) {
+                                throw new RuntimeException("Error: Role is not found");
+                            }
+                            roles.add(adminRole);
+
+                            break;
+
+                        default:
+                            Role userRole = roleRepository.findByName(EnumRole.USER);
+                            if (userRole == null) {
+                                throw new RuntimeException("Error: Role is not found");
+                            }
+                            roles.add(userRole);
+                    }
+                });
+            }// Create folder in Google Drive for photos storage
+            String applicationFolderId = photoService.getFolder(applicationFolder, "root").getId();
+            File userFolder = photoService.getFolder(signUpRequest.getLogin(), applicationFolderId);
+            if (userFolder == null) {
+                photoService.createFolder(signUpRequest.getLogin(), applicationFolderId);
+            }
+            user.setRoles(roles);
+            userRepository.save(user);
+            result = ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        }
+        return result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public ResponseEntity<?> signInUser(LoginRequest loginRequest) {
         if(userRepository.existsByLogin(loginRequest.getLogin())) {
             Authentication authentication = authenticationManager.authenticate(
@@ -154,7 +156,16 @@ public class UserDetailsServiceImplementation implements UserDetailsService, Use
                     userDetails.getEmail(),
                     roles));
         } else {
-            return ResponseEntity.badRequest().body(new MessageResponse("Invalid user or password"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Invalid login"));
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteUser(String login, String applicationFolder) throws GeneralSecurityException, IOException {
+        userRepository.deleteByLogin(login);
+        photoService.deleteResources(login, applicationFolder);
     }
 }
