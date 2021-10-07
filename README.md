@@ -13,7 +13,7 @@ display single photo, whole gallery or map with countries and places where photo
 - Client-Server architecture
 - Using geolocation of pictures
 - Images are stored on Google Drive
-- Created from passion of travelling
+- Created from passion for travel
 - Application was created using REST
 
 ## Technologies and Libraries
@@ -30,6 +30,7 @@ display single photo, whole gallery or map with countries and places where photo
 * [Google Maps SDK](https://developers.google.com/maps/documentation/android-sdk/overview) - Map component for client part
 * [Retrofit](https://square.github.io/retrofit) - type-safe HTTP Client for Android and Java
 * [Glide](https://github.com/bumptech/glide) - media managament and image loading framework for Android
+* [JUnit](https://junit.org/junit5/) - Library for unit tests
 
 ## Features
 * Signing up and signing in users
@@ -37,9 +38,9 @@ display single photo, whole gallery or map with countries and places where photo
 * Display gallery of all user pictures
 * Display map with countries and marker in country, where photo was taken
 * Add own description to image
+* Delete pictures or user
 
 ### To Do
-* Delete pictures or user
 * friends list
 * share journals with others
 * Logging with Google or Facebook
@@ -67,24 +68,24 @@ Returns: JSON containing names of countries.
 
 * `localhost:8080/{login}/map/{country}`  
 Endpoint Parameters: login of user, name of country.  
-Returns: JSON containing photo descriptions in given country.  
+Returns: JSON containing photo data in given country.  
 
 * `localhost:8080/{login}/map/ocean`  
 Endpoint Parameters: login of user.  
-Returns: JSON containing descriptions of photos, that have location, but weren't assigned to any country.
+Returns: JSON containing photo data, that have location, but weren't assigned to any country.
 
 * `localhost:8080/{login}/photo/{photoId}`  
 Endpoint Parameters: login of user, id of photo.  
 Returns: JPG image.
 
-* `localhost:8080/{login}/photo/{photoId}/description`  
+* `localhost:8080/{login}/photo/{photoId}/photodata`  
 Endpoint Parameters: login of user, id of photo.  
-Returns: JSON containing description of single photo.
+Returns: JSON containing photo data of single photo.
 
-* `localhost:8080/{login}/photo/description`  
+* `localhost:8080/{login}/photo/photodata`  
 Endpoint Parameters: login of user.  
 Request Parameters: page number, size of page.  
-Returns: Paginated JSON containing all photos descriptions.
+Returns: Paginated JSON containing all photos data.
 
 #### POST Methods
 * `localhost:8080/user/signin`  
@@ -98,14 +99,22 @@ Returns: Information with successfully registered user.
 * `localhost:8080/{login}/photo`  
 Endpoint Parameters: login of user.  
 Request Parameters: JPG picture.  
-Returns: JSON containing description of newly added photo.
+Returns: JSON containing PhotoData of newly added photo.
 
 #### PUT Methods
 * `localhost:8080/{login}/photo/{photoId}/description`  
 Endpoint Parameters: login of user, id of photo.  
 Request Parameters: new description.  
-Returns: JSON containing updated photo description.
+Returns: JSON containing updated PhotoData.
 
+#### DELETE Methods
+* `localhost:8080/{login}/photo/{photoId}`  
+Endpoint Parameters: login of user, id of photo.  
+Returns: Information with successfully deleting photo with given id.
+
+* `localhost:8080/{login}`  
+Endpoint Parameters: login of user  
+Returns: Information with successfully deleting user with given login.
 
 ### Example screens
 <img src="./img/gallery.png" height=25% width=25%> <img src="./img/login.png" height=25% width=25%>
