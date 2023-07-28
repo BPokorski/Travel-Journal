@@ -62,57 +62,57 @@ Server wasn't published, so connection is only available localy.
 Here is complete list of avaiable endpoints
 
 #### GET Methods
-* `localhost:8080/{login}/map`  
+* `/{login}/map`  
 Endpoint Parameters: login of user.  
 Returns: JSON containing names of countries.
 
-* `localhost:8080/{login}/map/{country}`  
+* `/{login}/map/{country}`  
 Endpoint Parameters: login of user, name of country.  
 Returns: JSON containing photo data in given country.  
 
-* `localhost:8080/{login}/map/ocean`  
+* `/{login}/map/ocean`  
 Endpoint Parameters: login of user.  
 Returns: JSON containing photo data, that have location, but weren't assigned to any country.
 
-* `localhost:8080/{login}/photo/{photoId}`  
+* `/{login}/photo/{photoId}`  
 Endpoint Parameters: login of user, id of photo.  
 Returns: JPG image.
 
-* `localhost:8080/{login}/photo/{photoId}/photodata`  
+* `/{login}/photo/{photoId}/photodata`  
 Endpoint Parameters: login of user, id of photo.  
 Returns: JSON containing photo data of single photo.
 
-* `localhost:8080/{login}/photo/photodata`  
+* `/{login}/photo/photodata`  
 Endpoint Parameters: login of user.  
 Request Parameters: page number, size of page.  
 Returns: Paginated JSON containing all photos data.
 
 #### POST Methods
-* `localhost:8080/user/signin`  
+* `/user/signin`  
 Request Parameters: login, password.  
 Returns: JSON containing user's authentication.
 
-* `localhost:8080/user/signup`  
+* `/user/signup`  
 Request Parameters: login, e-mail, role, password.  
 Returns: Information with successfully registered user.
 
-* `localhost:8080/{login}/photo`  
+* `/{login}/photo`  
 Endpoint Parameters: login of user.  
 Request Parameters: JPG picture.  
 Returns: JSON containing PhotoData of newly added photo.
 
 #### PUT Methods
-* `localhost:8080/{login}/photo/{photoId}/description`  
+* `/{login}/photo/{photoId}/description`  
 Endpoint Parameters: login of user, id of photo.  
 Request Parameters: new description.  
 Returns: JSON containing updated PhotoData.
 
 #### DELETE Methods
-* `localhost:8080/{login}/photo/{photoId}`  
+* `/{login}/photo/{photoId}`  
 Endpoint Parameters: login of user, id of photo.  
 Returns: Information with successfully deleting photo with given id.
 
-* `localhost:8080/{login}`  
+* `/{login}`  
 Endpoint Parameters: login of user  
 Returns: Information with successfully deleting user with given login.
 
